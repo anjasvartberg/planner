@@ -1,0 +1,2 @@
+body { padding-top: 70px; }
+#week .col-md-6:nth-child(2n) {clear:left;}
