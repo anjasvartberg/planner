@@ -1,4 +1,4 @@
-var Tidsplan = {};
+var Planner = {};
 
 process.env = process.env || {};
 
@@ -6,7 +6,7 @@ var http = require('http');
 var fs = require('fs');
 var url = require("url");
 
-Tidsplan.Sheets = require(process.cwd() + '/backend/tidsplan.js');
+Planner.Sheets = require(process.cwd() + '/backend/sheets.js');
 
 
 var server = http.createServer(function (request, response) {
@@ -23,13 +23,15 @@ var server = http.createServer(function (request, response) {
     }
 
     if (parsedUrl.pathname == "/day") {
-          Tidsplan.Sheets.getToday(Tidsplan.writeJson(response));
+          Planner.Sheets.getToday(Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/week") {
-        Tidsplan.Sheets.getComingWeek(Tidsplan.writeJson(response));
+        Planner.Sheets.getComingWeek(Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/recipe") {
-        Tidsplan.Sheets.getTodaysRecipe(Tidsplan.writeJson(response));
+        Planner.Sheets.getTodaysRecipe(Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/tasks") {
-        Tidsplan.Sheets.getPlannedTasks(Tidsplan.writeJson(response));
+        Planner.Sheets.getPlannedTasks(Planner.writeJson(response));
+    } else if (parsedUrl.pathname == "/completeTask") {
+        Planner.Sheets.setCompletedTask(parsedUrl.query.task, Planner.writeJson(response));
     } else {
         fs.readFile(fileroot + request.url, function(error, content) {
             if (error) {
@@ -56,7 +58,7 @@ server.listen(8000);
 // Put a friendly message on the terminal
 console.log("Server running at http://127.0.0.1:8000/");
 
-Tidsplan.writeJson = function(response) {
+Planner.writeJson = function(response) {
     return function(data) {
         response.writeHead(200, {'Content-Type': 'application/json;charset=utf-8'});
         response.end(JSON.stringify(data), 'utf-8');          

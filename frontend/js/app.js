@@ -1,23 +1,23 @@
 (function(Simple, Mustache) {
 
-  window.Tidsplan = window.Tidsplan || {};
+  window.Planner = window.Planner || {};
 
-  Tidsplan.start = function() {
-    var day = new Tidsplan.Day();
+  Planner.start = function() {
+    var day = new Planner.Day();
     var el = $("#day");
-    var view = new Tidsplan.Day.DayView({day: day, el: el});
+    var view = new Planner.Day.DayView({day: day, el: el});
     
-    var week = new Tidsplan.Week();
+    var week = new Planner.Week();
     var el = $("#week");
-    var view = new Tidsplan.Week.WeekView({week: week, el: el});
+    var view = new Planner.Week.WeekView({week: week, el: el});
     
-    var todaysRecipe = new Tidsplan.Recipe();
+    var todaysRecipe = new Planner.Recipe();
     var el = $("#recipe");
-    var view = new Tidsplan.Recipe.RecipeView({recipe: todaysRecipe, el: el});
+    var view = new Planner.Recipe.RecipeView({recipe: todaysRecipe, el: el});
     
-    var plannedTasks = new Tidsplan.Tasks();
+    var plannedTasks = new Planner.Tasks();
     var el = $("#tasks");
-    var view = new Tidsplan.Tasks.TasksView({tasks: plannedTasks, el: el});
+    var view = new Planner.Tasks.TasksView({tasks: plannedTasks, el: el});
     
 
 	  day.fetch();
@@ -26,35 +26,35 @@
     plannedTasks.fetch();
   }
 
-  Tidsplan.Day = Simple.Model.extend({
+  Planner.Day = Simple.Model.extend({
     dataType: "json",
     initialize: function() {
         this.url = "/day";
     }
   });
 
-  Tidsplan.Week = Simple.Model.extend({
+  Planner.Week = Simple.Model.extend({
     dataType: "json",
     initialize: function() {
         this.url = "/week";
     }
   });
 
-  Tidsplan.Recipe = Simple.Model.extend({
+  Planner.Recipe = Simple.Model.extend({
     dataType: "json",
     initialize: function() {
         this.url = "/recipe";
     }
   });
 
-  Tidsplan.Tasks = Simple.Model.extend({
+  Planner.Tasks = Simple.Model.extend({
     dataType: "json",
     initialize: function() {
         this.url = "/tasks";
     }
   });
 
-  Tidsplan.Day.DayView = Simple.View.extend({
+  Planner.Day.DayView = Simple.View.extend({
     template:'<div class="panel panel-default">' +
             '<div class="panel-heading"><h3 class="panel-title"> {{weekDay}} {{date}} </h3></div>' +
               '<div class="panel-body">' +
@@ -84,7 +84,7 @@
     }
   });
 
-  Tidsplan.Week.WeekView = Simple.View.extend({
+  Planner.Week.WeekView = Simple.View.extend({
     template:'<div class="page-header"><h1>Neste uke</h1></div>' +
       '{{#comingWeek}}' +
         '<div class="col-md-6">' +
@@ -124,7 +124,7 @@
     }
   }); 
 
-  Tidsplan.Recipe.RecipeView = Simple.View.extend({
+  Planner.Recipe.RecipeView = Simple.View.extend({
     template:'<div class="panel panel-default">' +
                 '<div class="panel-heading"><h3 class="panel-title">{{name}}</h3></div>' + 
                 '<div class="panel-body">' +
@@ -145,12 +145,12 @@
     }
   }); 
 
-  Tidsplan.Tasks.TasksView = Simple.View.extend({
+  Planner.Tasks.TasksView = Simple.View.extend({
     template:'<div class="panel panel-default">' +
                 '<div class="panel-heading"><h3 class="panel-title">Planlagte oppgaver</h3></div>' + 
-                '<ul class="list-group">' +
+                '<ul>' +
                   '{{#tasks}}' +
-                    '<li class="list-group-item"><label class="checkbox"><input type="checkbox" value="">{{name}}</label></li>' +
+                    '<li><label class="checkbox"><input type="checkbox" value="{{id}}" {{done}}>{{name}}</label></li>' +
                   '{{/tasks}}' +
                 '</ul>' +
               '</div>',
@@ -158,6 +158,15 @@
       this.tasks = options.tasks;
       this.tasks.on("fetch:finished", this.render, this);
       this.el = options.el;
+      var saveTask = new Planner.Tasks.SaveTask();  
+      this.el.on("click", "label.checkbox", function(event) {
+        console.log(this);
+        var task = $(this).find("input").attr("value");
+        saveTask.saveTask(task);
+      
+        //saveTask.on("fetch:finished", function() {window.location.reload()}, this);
+      });
+
     },
     render: function() {
       var tasksAttrs = this.tasks.attrs();
@@ -165,5 +174,15 @@
       this.el.html(html);
     }
   }); 
+  
+  Planner.Tasks.SaveTask = Simple.Model.extend({
+    dataType: "json",
+    initialize: function() {},
+    saveTask: function(task) {
+        this.url = "/completeTask?task=" + task;  
+        this.fetch();
+    }
+  });
+
 
 })(Simple, Mustache);
