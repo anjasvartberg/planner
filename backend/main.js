@@ -33,8 +33,12 @@ var server = http.createServer(function (request, response) {
     } else if (parsedUrl.pathname == "/completeTask") {
         Planner.Sheets.setCompletedTask(parsedUrl.query.task, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/calendar") {
-        var month = Number(parsedUrl.query.month);
-        Planner.Sheets.getCalendar(month, Planner.writeJson(response));
+        Planner.Sheets.getCalendar(Number(parsedUrl.query.month), Planner.writeJson(response));
+    } else if (parsedUrl.pathname == "/updateDay") {
+        Planner.Sheets.updateDay(Number(parsedUrl.query.day), parsedUrl.query.month, Planner.writeJson(response));
+    } else if (parsedUrl.pathname == "/recipes") {
+        console.log("Get recipes");
+        Planner.writeJson(response)("test");
     } else {
         fs.readFile(fileroot + request.url, function(error, content) {
             if (error) {

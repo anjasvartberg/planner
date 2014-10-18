@@ -30,10 +30,10 @@ Planner.DaySimple = function(dayData, formatedDate, weekDay) {
 
 }
 
-Planner.Days = function(columnNames) {
+Planner.Days = function(name) {
+	this.name = name;
 	this.days = new Array();
 	this.length = 0;
-	this.columnNames = columnNames;
 	this.push = function(day) {
 		this.days.push(day);
 		this.length += 1;
@@ -81,6 +81,19 @@ Planner.Sheets.getToday = function (callback) {
 	});
 }
 
+Planner.Sheets.updateDay = function (day, month, callback) {
+	var updateJson = {};
+	if (!isNaN(task)) {
+		updateJson[task] = { 4: 'x' };
+		
+		Planner.Sheets.updateSpreadsheet('Planned tasks', updateJson, function(rows){
+			callback(updateJson);
+		});
+	} else {
+		callback("failed");
+	}
+}
+
 Planner.Sheets.getComingWeek = function (callback) {
 	var date = new Date();
 	var day = date.getDate();
@@ -93,7 +106,7 @@ Planner.Sheets.getComingWeek = function (callback) {
 		for (var i in rows[1]) {
 			columnNames.push(rows[1][i]);
 		}
-		var week = new Planner.Days(columnNames);
+		var week = new Planner.Days(columnNames,"Denne uka");
 		for (var i = 1; i <= 7; i++) {
 			var formatedDate = day+i + "." + (month+1) + "." + year;
 			var weekDay = Planner.getWeekDayName((date.getDay()+i));
@@ -152,23 +165,28 @@ Planner.Sheets.getCalendar = function (month, callback) {
 
 	var worksheetName = Planner.getWorksheetName(month);
 	
+	var monthData = new Planner.Days(worksheetName);
+
 	Planner.Sheets.getSpreadsheet(worksheetName, function(rows){
 		var columnNames = new Array();
 		for (row in rows[1]) {
 			columnNames.push(rows[1][row]);
 		}
-		var monthData = new Planner.Days(columnNames);
 
+		monthData.columnNames = columnNames;
+		
 		for (var i = 2; i < Object.keys(rows).length; i++) {
 			var dayDate = new Date(year, month, rows[i][1]);
-			console.log(dayDate);
 			var formatedDate = rows[i][1] + "." + (month+1) + "." + year;
 			var weekDay = Planner.getWeekDayName((dayDate.getDay()));
 			var dayData = rows[i];
-			monthData.push(new Planner.Day(dayData,formatedDate, weekDay, rows[1]));		
+			monthData.push(new Planner.Day(dayData, formatedDate, weekDay, rows[1]));		
 		}
-		callback(monthData);
+		callback(monthData);	
 	});
+
+	
+
 }
 
 Planner.Sheets.getSpreadsheet = function(worksheetName, callback) {

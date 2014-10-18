@@ -29,8 +29,11 @@
 
   Planner.startCalendar = function() {
     var calendar = new Planner.Calendar();
+    var recipes = new Planner.Recipes();
     var el = $("#calendar");
-    var view = new Planner.Calendar.CalendarView({calendar: calendar, el: el});    
+    var view = new Planner.Calendar.CalendarView({calendar: calendar,recipes: recipes, el: el});    
+  
+    recipes.fetch();
   }
 
   Planner.Day = Simple.Model.extend({
@@ -68,6 +71,13 @@
     getMonth: function(month) {
         this.url = "/calendar?month=" + month; 
         this.fetch(); 
+    }
+  });
+
+ Planner.Recipes = Simple.Model.extend({
+    dataType: "json",
+    initialize: function() {
+        this.url = "/recipes"; 
     }
   });
 
@@ -122,7 +132,6 @@
     
     },
     render: function() {
-      console.log(this.week);
       var weekAttrs = this.week.attrs();
         for (day in weekAttrs.days) {
           var day = weekAttrs.days[day];
@@ -130,8 +139,6 @@
           if (day.weekDay == "Lørdag" || day.weekDay == "Søndag"){
              day.style = 'danger';
           }
-          console.log(day.columnNames);
-          console.log(day.restData);
           day.restCols = new Array();
           for (column in day.columnNames) {
             if (day.restData[column] != null) {
@@ -145,121 +152,100 @@
   }); 
 
   Planner.Calendar.CalendarView = Simple.View.extend({
-    template:'<div class="page-header"><h1>Oktober</h1></div>' +
+    template:'<div class="page-header"><h1>{{name}}</h1></div>' +
     '<div class="panel-group" id="accordion">' +
       '{{#days}}' +
           '<div class="panel panel-{{style}}">' +
             '<div class="panel-heading" style="position:relative"><h4 class="panel-title">' + 
             '<a data-toggle="collapse" data-target="#collapse{{id}}">' +
             '{{weekDay}} {{date}}: {{plans}}</a></h4>' + 
-            '<button type="button" class="btn btn-sm btn-primary edit" style="position:absolute;right:10px;top:10px">Endre</button></div>' +
+            '<button type="button" class="btn btn-xs btn-primary edit" style="position:absolute;right:10px;top:10px">Endre</button>' +
+            '<button type="button" class="btn btn-xs btn-danger save" style="position:absolute;right:10px;top:10px;display:none">Lagre</button></div>' +
           '<div id="collapse{{id}}" class="panel-collapse collapse">' +
             '<ul class="list-group">' +
-              '<li class="list-group-item">Dagens middag: {{menuOfTheDay}}</li>' +
+              '<li class="list-group-item">Dagens planer: <span class="editable">{{plans}}</span> </li>' +
+              '<li class="list-group-item">Dagens middag: <span class="editable dinner">{{menuOfTheDay}}</span></li>' +
               '{{#restCols}}' + 
               '<li class="list-group-item">{{{.}}}</li>' +
               '{{/restCols}}' +
             '</ul></div></div>' +
       '{{/days}}</div>',
+    templateDropdown: '<div class="test"/>',
     initialize: function(options) {
+      var that = this;
       this.calendar = options.calendar;
+      this.recipes = options.recipes;
       this.el = options.el;
-      var date = new Date();
-      var month = date.getMonth();
-      this.calendar.getMonth(month);
-      $(".btn-group.months .btn#" + month).addClass("active");
-      this.calendar.on("fetch:finished", this.render, this);
-      var calendar = this.calendar;
-      $(".btn-group.months .btn").on("click", function(event) {
-        var month = $(this).attr("id");
-        calendar.getMonth(month);
-        calendar.on("fetch:finished", this.render, this);
-        $(this).addClass("active");
-        $(this).siblings(".btn").removeClass("active");
-      });
-    },
-    render: function() {
-        var calendarAttrs = this.calendar.attrs();
-        for (day in calendarAttrs.days) {
-          var day = calendarAttrs.days[day];
-          day.style = 'default';
-          if (day.weekDay == "Lørdag" || day.weekDay == "Søndag"){
-             day.style = 'danger';
-          }
-          day.restCols = new Array();
-          for (column in day.columnNames) {
-            day.restCols.push("<strong>" + day.columnNames[column] + ":</strong> " + day.restData[column]);  
-  
-          }  
-      }
-      var html = Mustache.to_html(this.template, calendarAttrs);
-      this.el.html(html);
-    }
-  }); 
-
-  /*Planner.Calendar.CalendarView = Simple.View.extend({
-    template:'<button type="button" class="btn btn-lg btn-primary edit">Endre</button>' +
-    '<table class="table table-striped">' + 
-      '<thead><tr><th>#</th>' + 
-      '{{#columnNames}}' +
-        '<th>{{.}}</th>' +
-      '{{/columnNames}}' +
-      '</tr></thead><tbody>' +
-      '{{#days}}' + 
-        '<tr class="{{style}}">' +
-          '<td>{{{date}}}</td>' +  
-          '{{#restData}}' + 
-            '<td class="editable">{{{.}}}</td>' +
-          '{{/restData}}' +
-          '</tr>' +
-        '{{/days}}' +
-      '</tbody></table>',
-    initialize: function(options) {
-      this.calendar = options.calendar;
-      this.el = options.el;
-      var date = new Date();
-      var month = date.getMonth();
-      this.calendar.getMonth(month);
-      $(".btn-group.months .btn#" + month).addClass("active");
-      this.calendar.on("fetch:finished", this.render, this);
-      var calendar = this.calendar;
-      $(".btn-group.months .btn").on("click", function(event) {
-        var month = $(this).attr("id");
-        calendar.getMonth(month);
-        calendar.on("fetch:finished", this.render, this);
-        $(this).addClass("active");
-        $(this).siblings(".btn").removeClass("active");
-        //saveTask.on("fetch:finished", function() {window.location.reload()}, this);
-      });
       var el = this.el;
+      var date = new Date();
+      var month = date.getMonth();
+      $(".btn-group.months .btn#" + month).addClass("active");
+    
+      this.calendar.getMonth(month);
+        
+      this.calendar.on("fetch:finished", this.render, this);
+      
+      that.recipes.on("fetch:finished", that.renderRecipes, that);
+
+      var calendar = this.calendar;
+      $(".btn-group.months .btn").on("click", function(event) {
+        var month = $(this).attr("id");
+        calendar.getMonth(month);
+        calendar.on("fetch:finished", this.render, this);
+        $(this).addClass("active");
+        $(this).siblings(".btn").removeClass("active");
+      });
       this.el.on("click", "button.edit", function(event) {
-        $(event.target).addClass("btn-danger").removeClass("btn-primary");
-        var tds = el.find("td.editable");
-        tds.each(function(index, td){
-          var text = $(td).text();
-          $(td).html( "<input type='text' value='"+text+"'/>");
+        $(this).hide();
+        $(this).siblings('.save').show();
+        $(this).parents(".panel").find(".collapse").collapse('show');
+        var editableFields = $(this).parents(".panel").find(".editable");
+        editableFields.each(function(index, field){
+          var text = $(field).html();
+          if ($(field).hasClass("dinner")) {
+            $(field).html(that.recipesHtml);
+          } else {
+            $(field).html( "<input style='width: 100%' type='text' value='"+text+"'/>");  
+          }
         });
+      });
+      this.el.on("click", "button.save", function(event) {
+        var that = $(this); 
+        that.hide();
+        that.siblings('.edit').show();
+        var editableFields = that.parents(".panel").find(".editable");
+        editableFields.each(function(index, field){
+          var text = $(field).find("input").val();
+          $(field).html(text);
+
+        });
+        
       });
     },
     render: function() {
       var calendarAttrs = this.calendar.attrs();
-        for (day in calendarAttrs.days) {
-          var day = calendarAttrs.days[day];
-          day.style = 'default';
-          if (day.weekDay == "Lørdag" || day.weekDay == "Søndag"){
-             day.style = 'danger';
-          }
-          day.restCols = new Array();
-          for (column in calendarAttrs.columnNames) {
-            if (day.restData[column] == null) {
-              day.restData[column] = "";  
-            }
-          }  
+      for (day in calendarAttrs.days) {
+        var day = calendarAttrs.days[day];
+        day.style = 'default';
+        if (day.weekDay == "Lørdag" || day.weekDay == "Søndag"){
+           day.style = 'danger';
+        }
+        day.restCols = new Array();
+        for (column in day.columnNames) {
+          day.restCols.push("<strong>" + day.columnNames[column] + ":</strong> <span class='editable'>" + day.restData[column] + "</span>");  
+        }  
       }
       var html = Mustache.to_html(this.template, calendarAttrs);
       this.el.html(html);
+    },
+    renderRecipes: function(element) {
+        var recipesAttrs = this.recipes.attrs();  
+        var html = Mustache.to_html(this.templateDropdown, recipesAttrs);
+        this.recipesHtml = html;    
+      
     }
-  }); */
+  }); 
+
 
   Planner.Recipe.RecipeView = Simple.View.extend({
     template:'<div class="panel panel-default">' +
@@ -297,7 +283,6 @@
       this.el = options.el;
       var saveTask = new Planner.Tasks.SaveTask();  
       this.el.on("click", "label.checkbox", function(event) {
-        console.log(this);
         var task = $(this).find("input").attr("value");
         saveTask.saveTask(task);
       
