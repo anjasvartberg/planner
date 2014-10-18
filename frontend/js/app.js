@@ -18,12 +18,19 @@
     var plannedTasks = new Planner.Tasks();
     var el = $("#tasks");
     var view = new Planner.Tasks.TasksView({tasks: plannedTasks, el: el});
-    
 
-	  day.fetch();
+    day.fetch();
     week.fetch();
     todaysRecipe.fetch();
     plannedTasks.fetch();
+    
+    
+  }
+
+  Planner.startCalendar = function() {
+    var calendar = new Planner.Calendar();
+    var el = $("#calendar");
+    var view = new Planner.Calendar.CalendarView({calendar: calendar, el: el});    
   }
 
   Planner.Day = Simple.Model.extend({
@@ -51,6 +58,16 @@
     dataType: "json",
     initialize: function() {
         this.url = "/tasks";
+    }
+  });
+
+  Planner.Calendar = Simple.Model.extend({
+    dataType: "json",
+    initialize: function() {
+    },
+    getMonth: function(month) {
+        this.url = "/calendar?month=" + month; 
+        this.fetch(); 
     }
   });
 
@@ -86,7 +103,7 @@
 
   Planner.Week.WeekView = Simple.View.extend({
     template:'<div class="page-header"><h1>Neste uke</h1></div>' +
-      '{{#comingWeek}}' +
+      '{{#days}}' +
         '<div class="col-md-6">' +
           '<div class="panel panel-{{style}}">' +
             '<div class="panel-heading"><h3 class="panel-title">{{weekDay}} {{date}}</h3></div>' +
@@ -97,7 +114,7 @@
                 '<li class="list-group-item">{{{.}}}</li>' +
                 '{{/restCols}}' +
               '</ul></div></div>' +
-      '{{/comingWeek}}',
+      '{{/days}}',
     initialize: function(options) {
       this.week = options.week;
       this.week.on("fetch:finished", this.render, this);
@@ -105,13 +122,16 @@
     
     },
     render: function() {
+      console.log(this.week);
       var weekAttrs = this.week.attrs();
-        for (day in weekAttrs.comingWeek) {
-          var day = weekAttrs.comingWeek[day];
+        for (day in weekAttrs.days) {
+          var day = weekAttrs.days[day];
           day.style = 'default';
           if (day.weekDay == "Lørdag" || day.weekDay == "Søndag"){
              day.style = 'danger';
           }
+          console.log(day.columnNames);
+          console.log(day.restData);
           day.restCols = new Array();
           for (column in day.columnNames) {
             if (day.restData[column] != null) {
@@ -123,6 +143,123 @@
       this.el.html(html);
     }
   }); 
+
+  Planner.Calendar.CalendarView = Simple.View.extend({
+    template:'<div class="page-header"><h1>Oktober</h1></div>' +
+    '<div class="panel-group" id="accordion">' +
+      '{{#days}}' +
+          '<div class="panel panel-{{style}}">' +
+            '<div class="panel-heading" style="position:relative"><h4 class="panel-title">' + 
+            '<a data-toggle="collapse" data-target="#collapse{{id}}">' +
+            '{{weekDay}} {{date}}: {{plans}}</a></h4>' + 
+            '<button type="button" class="btn btn-sm btn-primary edit" style="position:absolute;right:10px;top:10px">Endre</button></div>' +
+          '<div id="collapse{{id}}" class="panel-collapse collapse">' +
+            '<ul class="list-group">' +
+              '<li class="list-group-item">Dagens middag: {{menuOfTheDay}}</li>' +
+              '{{#restCols}}' + 
+              '<li class="list-group-item">{{{.}}}</li>' +
+              '{{/restCols}}' +
+            '</ul></div></div>' +
+      '{{/days}}</div>',
+    initialize: function(options) {
+      this.calendar = options.calendar;
+      this.el = options.el;
+      var date = new Date();
+      var month = date.getMonth();
+      this.calendar.getMonth(month);
+      $(".btn-group.months .btn#" + month).addClass("active");
+      this.calendar.on("fetch:finished", this.render, this);
+      var calendar = this.calendar;
+      $(".btn-group.months .btn").on("click", function(event) {
+        var month = $(this).attr("id");
+        calendar.getMonth(month);
+        calendar.on("fetch:finished", this.render, this);
+        $(this).addClass("active");
+        $(this).siblings(".btn").removeClass("active");
+      });
+    },
+    render: function() {
+        var calendarAttrs = this.calendar.attrs();
+        for (day in calendarAttrs.days) {
+          var day = calendarAttrs.days[day];
+          day.style = 'default';
+          if (day.weekDay == "Lørdag" || day.weekDay == "Søndag"){
+             day.style = 'danger';
+          }
+          day.restCols = new Array();
+          for (column in day.columnNames) {
+            day.restCols.push("<strong>" + day.columnNames[column] + ":</strong> " + day.restData[column]);  
+  
+          }  
+      }
+      var html = Mustache.to_html(this.template, calendarAttrs);
+      this.el.html(html);
+    }
+  }); 
+
+  /*Planner.Calendar.CalendarView = Simple.View.extend({
+    template:'<button type="button" class="btn btn-lg btn-primary edit">Endre</button>' +
+    '<table class="table table-striped">' + 
+      '<thead><tr><th>#</th>' + 
+      '{{#columnNames}}' +
+        '<th>{{.}}</th>' +
+      '{{/columnNames}}' +
+      '</tr></thead><tbody>' +
+      '{{#days}}' + 
+        '<tr class="{{style}}">' +
+          '<td>{{{date}}}</td>' +  
+          '{{#restData}}' + 
+            '<td class="editable">{{{.}}}</td>' +
+          '{{/restData}}' +
+          '</tr>' +
+        '{{/days}}' +
+      '</tbody></table>',
+    initialize: function(options) {
+      this.calendar = options.calendar;
+      this.el = options.el;
+      var date = new Date();
+      var month = date.getMonth();
+      this.calendar.getMonth(month);
+      $(".btn-group.months .btn#" + month).addClass("active");
+      this.calendar.on("fetch:finished", this.render, this);
+      var calendar = this.calendar;
+      $(".btn-group.months .btn").on("click", function(event) {
+        var month = $(this).attr("id");
+        calendar.getMonth(month);
+        calendar.on("fetch:finished", this.render, this);
+        $(this).addClass("active");
+        $(this).siblings(".btn").removeClass("active");
+        //saveTask.on("fetch:finished", function() {window.location.reload()}, this);
+      });
+      var el = this.el;
+      this.el.on("click", "button.edit", function(event) {
+        $(event.target).addClass("btn-danger").removeClass("btn-primary");
+        var tds = el.find("td.editable");
+        tds.each(function(index, td){
+          var text = $(td).text();
+          $(td).html( "<input type='text' value='"+text+"'/>");
+        });
+      });
+    },
+    render: function() {
+      var calendarAttrs = this.calendar.attrs();
+        for (day in calendarAttrs.days) {
+          var day = calendarAttrs.days[day];
+          day.style = 'default';
+          if (day.weekDay == "Lørdag" || day.weekDay == "Søndag"){
+             day.style = 'danger';
+          }
+          day.restCols = new Array();
+          for (column in calendarAttrs.columnNames) {
+            if (day.restData[column] == null) {
+              day.restData[column] = "";  
+            }
+          }  
+      }
+      var html = Mustache.to_html(this.template, calendarAttrs);
+      this.el.html(html);
+    }
+  }); */
 
   Planner.Recipe.RecipeView = Simple.View.extend({
     template:'<div class="panel panel-default">' +

@@ -32,6 +32,9 @@ var server = http.createServer(function (request, response) {
         Planner.Sheets.getPlannedTasks(Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/completeTask") {
         Planner.Sheets.setCompletedTask(parsedUrl.query.task, Planner.writeJson(response));
+    } else if (parsedUrl.pathname == "/calendar") {
+        var month = Number(parsedUrl.query.month);
+        Planner.Sheets.getCalendar(month, Planner.writeJson(response));
     } else {
         fs.readFile(fileroot + request.url, function(error, content) {
             if (error) {

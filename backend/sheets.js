@@ -3,7 +3,10 @@ Planner.Sheets = {};
 
 var Spreadsheet = require('edit-google-spreadsheet');
 
+
+
 Planner.Day = function(dayData, formatedDate, weekDay, columnNames) {
+	this.id = dayData[1];
 	this.date = formatedDate;
 	this.weekDay = weekDay;
 	this.plans = dayData[2];
@@ -17,11 +20,22 @@ Planner.Day = function(dayData, formatedDate, weekDay, columnNames) {
 
 }
 
-Planner.ComingWeek = function() {
-	this.comingWeek = new Array();
+Planner.DaySimple = function(dayData, formatedDate, weekDay) {
+	this.date = formatedDate;
+	this.weekDay = weekDay;
+	this.restData = new Array();
+	for (var i = 2; i <= Object.keys(dayData).length; i ++) {
+		this.restData.push(dayData[i]);
+	}
+
+}
+
+Planner.Days = function(columnNames) {
+	this.days = new Array();
 	this.length = 0;
+	this.columnNames = columnNames;
 	this.push = function(day) {
-		this.comingWeek.push(day);
+		this.days.push(day);
 		this.length += 1;
 	} 
 }
@@ -75,17 +89,22 @@ Planner.Sheets.getComingWeek = function (callback) {
 	
 	var worksheetName = Planner.getWorksheetName(month);
 	Planner.Sheets.getSpreadsheet(worksheetName, function(rows){
-		var columnNames = rows [1];
-		var week = new Planner.ComingWeek();
+		var columnNames = new Array();
+		for (var i in rows[1]) {
+			columnNames.push(rows[1][i]);
+		}
+		var week = new Planner.Days(columnNames);
 		for (var i = 1; i <= 7; i++) {
 			var formatedDate = day+i + "." + (month+1) + "." + year;
 			var weekDay = Planner.getWeekDayName((date.getDay()+i));
 			var dayData = rows[day+i+1];
-			week.push(new Planner.Day(dayData,formatedDate, weekDay, columnNames));		
+			week.push(new Planner.Day(dayData,formatedDate, weekDay, rows[1]));		
 		}
 		callback(week);
 	});
 }
+
+
 
 Planner.Sheets.getTodaysRecipe = function (callback) {
 	Planner.Sheets.getToday(function(today) {
@@ -127,6 +146,30 @@ Planner.Sheets.setCompletedTask = function (task, callback) {
 	}
 }
 
+Planner.Sheets.getCalendar = function (month, callback) {
+	var date = new Date();
+	var year = date.getFullYear();
+
+	var worksheetName = Planner.getWorksheetName(month);
+	
+	Planner.Sheets.getSpreadsheet(worksheetName, function(rows){
+		var columnNames = new Array();
+		for (row in rows[1]) {
+			columnNames.push(rows[1][row]);
+		}
+		var monthData = new Planner.Days(columnNames);
+
+		for (var i = 2; i < Object.keys(rows).length; i++) {
+			var dayDate = new Date(year, month, rows[i][1]);
+			console.log(dayDate);
+			var formatedDate = rows[i][1] + "." + (month+1) + "." + year;
+			var weekDay = Planner.getWeekDayName((dayDate.getDay()));
+			var dayData = rows[i];
+			monthData.push(new Planner.Day(dayData,formatedDate, weekDay, rows[1]));		
+		}
+		callback(monthData);
+	});
+}
 
 Planner.Sheets.getSpreadsheet = function(worksheetName, callback) {
   	Spreadsheet.load({
@@ -174,40 +217,40 @@ Planner.getWorksheetName = function(month) {
 	var worksheet = '';
 	switch (month) {
 	    case 0:
-	        worksheet = "ocy"; //Denne uka
+	        worksheet = "January"; //Denne uka
 	        break;
 	    case 1:
-	        worksheet = "ocy";
+	        worksheet = "Febuary";
 	        break;
 	    case 2:
-	        worksheet = "ocy";
+	        worksheet = "March";
 	        break;
 	    case 3:
-	        worksheet = "ocy";
+	        worksheet = "April";
 	        break;
 	    case 4:
-	        worksheet = "ocy";
+	        worksheet = "May";
 	        break;
 	    case 5:
-	        worksheet = "ocy";
+	        worksheet = "June";
 	        break;
 	    case 6:
-	        worksheet = "ocy";
+	        worksheet = "July";
 	        break;
 	    case 7:
-	        worksheet = "ocy";
+	        worksheet = "August";
 	        break;
 	    case 8:
-	        worksheet = "ocy";
+	        worksheet = "September";
 	        break;
 	    case 9:
 	        worksheet = "October"; //Oktober
 	        break;
 	    case 10:
-	        worksheet = "ocy";
+	        worksheet = "November";
 	        break;
 	    case 11:
-	        worksheet = "ocy";
+	        worksheet = "December";
 	        break;
 	}
 	return worksheet;
@@ -248,3 +291,4 @@ exports.getComingWeek = Planner.Sheets.getComingWeek;
 exports.getTodaysRecipe = Planner.Sheets.getTodaysRecipe;
 exports.getPlannedTasks = Planner.Sheets.getPlannedTasks;
 exports.setCompletedTask = Planner.Sheets.setCompletedTask;
+exports.getCalendar = Planner.Sheets.getCalendar;
