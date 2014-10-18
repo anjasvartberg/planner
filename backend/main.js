@@ -37,8 +37,7 @@ var server = http.createServer(function (request, response) {
     } else if (parsedUrl.pathname == "/updateDay") {
         Planner.Sheets.updateDay(Number(parsedUrl.query.day), parsedUrl.query.month, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/recipes") {
-        console.log("Get recipes");
-        Planner.writeJson(response)("test");
+        Planner.Sheets.getRecipes(Planner.writeJson(response));
     } else {
         fs.readFile(fileroot + request.url, function(error, content) {
             if (error) {

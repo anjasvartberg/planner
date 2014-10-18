@@ -40,10 +40,19 @@ Planner.Days = function(name) {
 	} 
 }
 
-Planner.TodaysRecipe = function(recipeData) {
+Planner.Recipe = function(recipeData) {
 	this.name = recipeData[1];
 	this.ingredients = recipeData[2];
 	this.recipe = recipeData[3];
+}
+
+Planner.Recipes = function() {
+	this.recipes = new Array();
+	this.length = 0;
+	this.push = function(recipe) {
+		this.recipes.push(recipe);
+		this.length += 1;
+	} 
 }
 
 Planner.Task = function(id, taskData) {
@@ -125,7 +134,7 @@ Planner.Sheets.getTodaysRecipe = function (callback) {
 		Planner.Sheets.getSpreadsheet('Oppskrifter', function(rows){
 			for (key in rows){
 				if (rows[key][1] == todaysRecipeName){
-					var todaysRecipe = new Planner.TodaysRecipe(rows[key]);
+					var todaysRecipe = new Planner.Recipe(rows[key]);
 					callback(todaysRecipe);
 					return;
 				}	
@@ -133,6 +142,17 @@ Planner.Sheets.getTodaysRecipe = function (callback) {
 		});
 	});
 
+}
+
+Planner.Sheets.getRecipes = function (callback) {
+	Planner.Sheets.getSpreadsheet('Oppskrifter', function(rows){
+		var recipes = new Planner.Recipes();
+		for (key in rows){
+			recipes.push(new Planner.Recipe(rows[key]));
+		}
+		callback(recipes);			
+		
+	});
 }
 
 Planner.Sheets.getPlannedTasks = function (callback) {
@@ -310,3 +330,4 @@ exports.getTodaysRecipe = Planner.Sheets.getTodaysRecipe;
 exports.getPlannedTasks = Planner.Sheets.getPlannedTasks;
 exports.setCompletedTask = Planner.Sheets.setCompletedTask;
 exports.getCalendar = Planner.Sheets.getCalendar;
+exports.getRecipes = Planner.Sheets.getRecipes;

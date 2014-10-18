@@ -170,24 +170,31 @@
               '{{/restCols}}' +
             '</ul></div></div>' +
       '{{/days}}</div>',
-    templateDropdown: '<div class="test"/>',
+    templateDropdown: '<select class="form-control">' +
+        '<option></option>'+
+        '{{#recipes}}'+
+        '<option>{{name}}</option>'+
+        '{{/recipes}}'+
+      '</select>',
     initialize: function(options) {
-      var that = this;
       this.calendar = options.calendar;
       this.recipes = options.recipes;
       this.el = options.el;
-      var el = this.el;
+      
       var date = new Date();
       var month = date.getMonth();
+      this.calendar.getMonth(month);
+      this.calendar.on("fetch:finished", this.render, this);
       $(".btn-group.months .btn#" + month).addClass("active");
     
-      this.calendar.getMonth(month);
-        
-      this.calendar.on("fetch:finished", this.render, this);
-      
-      that.recipes.on("fetch:finished", that.renderRecipes, that);
+      this.recipes.on("fetch:finished", this.renderRecipes, this);
 
+      this.setupListeners();
+      
+    },
+    setupListeners: function () {
       var calendar = this.calendar;
+      var that = this;
       $(".btn-group.months .btn").on("click", function(event) {
         var month = $(this).attr("id");
         calendar.getMonth(month);
@@ -204,8 +211,9 @@
           var text = $(field).html();
           if ($(field).hasClass("dinner")) {
             $(field).html(that.recipesHtml);
+            $(field).find("select").val(text);
           } else {
-            $(field).html( "<input style='width: 100%' type='text' value='"+text+"'/>");  
+            $(field).html( "<input class='form-control' style='width: 100%' type='text' value='"+text+"'/>");  
           }
         });
       });
@@ -219,7 +227,6 @@
           $(field).html(text);
 
         });
-        
       });
     },
     render: function() {
