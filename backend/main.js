@@ -5,18 +5,52 @@ process.env = process.env || {};
 var http = require('http');
 var fs = require('fs');
 var url = require("url");
+var google = require('googleapis');
 var querystring = require("querystring");
 
 Planner.Sheets = require(process.cwd() + '/backend/sheets.js');
+Planner.oauth2Client = new google.auth.OAuth2('325419649433-mlppjiobg9i3p9aol2ediptkl72chfs5.apps.googleusercontent.com', 'zJlcxM8eOD6WKEiEQvYoTuHr', 'http://localhost:8000/oauth2callback');
 
-Planner.Sheets.setupMonths();
+var sessions = require(process.cwd() + '/backend/lib/session.js');
 
 var server = http.createServer(function (request, response) {
-    response.writeHead(200, {"Content-Type": "text/plain"});
+    var session = sessions.lookupOrCreate(request);
 
     var fileroot = process.cwd() + "/frontend";
 
     var parsedUrl = url.parse(request.url, true);
+    
+    console.log(request.url);
+
+    if (!session.data.accessToken && parsedUrl.pathname != "/login" && parsedUrl.pathname != "/oauth2callback") {
+        response.writeHead(302, {'Location': 'login'});
+        response.end();
+        return;
+    } else if (parsedUrl.pathname == "/login") {
+        var redirectUrl = Planner.oauth2Client.generateAuthUrl({
+            access_type: 'online',
+            scope: 'https://spreadsheets.google.com/feeds'
+        });
+        response.writeHead(302, {'location': redirectUrl});
+        response.end();
+        return;
+    } else if (parsedUrl.pathname == "/oauth2callback") {
+        Planner.oauth2Client.getToken(parsedUrl.query.code, function(err, tokens) {
+            if(err) throw new Error(err);
+            Planner.oauth2Client.setCredentials(tokens);
+            session.data.accessToken = tokens.access_token;
+            Planner.Sheets.setupMonths(session);
+            setTimeout(function() {
+                response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
+                response.setHeader('location', "/");
+                response.writeHead(302);
+                response.end();
+            }, 10000);
+        });
+        return;
+    }
+    
+    response.setHeader("Content-Type", "text/plain");
     
     if (parsedUrl.pathname == "/") {
         response.writeHead(302, {'Location': 'index.html'});
@@ -24,30 +58,28 @@ var server = http.createServer(function (request, response) {
         return;
     }
 
-
-
     if (parsedUrl.pathname == "/day") {
-          Planner.Sheets.getToday(Planner.writeJson(response));
+        Planner.Sheets.getToday(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/week") {
-        Planner.Sheets.getComingWeek(Planner.writeJson(response));
+        Planner.Sheets.getComingWeek(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/recipe") {
-        Planner.Sheets.getTodaysRecipe(Planner.writeJson(response));
+        Planner.Sheets.getTodaysRecipe(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/tasks") {
-        Planner.Sheets.getPlannedTasks(Planner.writeJson(response));
+        Planner.Sheets.getPlannedTasks(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/completeTask") {
-        Planner.Sheets.setCompletedTask(parsedUrl.query.task, Planner.writeJson(response));
+        Planner.Sheets.setCompletedTask(session, parsedUrl.query.task, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/calendar") {
-        Planner.Sheets.getCalendar(Number(parsedUrl.query.month), Planner.writeJson(response));
+        Planner.Sheets.getCalendar(session, Number(parsedUrl.query.month), Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/updateDay") {
         var chunk = '';
         request.on('data', function (data) {
             chunk += data;
         });
         request.on('end', function () {
-            Planner.Sheets.updateDay(Number(parsedUrl.query.day), parsedUrl.query.month, querystring.parse(chunk), Planner.writeJson(response));
+            Planner.Sheets.updateDay(session, Number(parsedUrl.query.day), parsedUrl.query.month, querystring.parse(chunk), Planner.writeJson(response));
         });
     } else if (parsedUrl.pathname == "/recipes") {
-        Planner.Sheets.getRecipes(Planner.writeJson(response));
+        Planner.Sheets.getRecipes(session, Planner.writeJson(response));
     } else {
         fs.readFile(fileroot + request.url, function(error, content) {
             if (error) {
@@ -63,9 +95,6 @@ var server = http.createServer(function (request, response) {
             }
         });     
     }
-
-  
-
 });
 
 // Listen on port 8000, IP defaults to 127.0.0.1
