@@ -3,7 +3,7 @@ Planner.Sheets = {};
 
 var Spreadsheet = require('edit-google-spreadsheet');
 
-
+var sessions = require(process.cwd() + '/backend/lib/session.js');
 
 Planner.Day = function(dayData, formatedDate, weekDay, columnNames) {
 	this.id = dayData[1];
@@ -72,8 +72,7 @@ Planner.Tasks = function() {
 	} 
 }
 
-
-Planner.Sheets.getToday = function (callback) {
+Planner.Sheets.getToday = function (session, callback) {
 	var date = new Date();
 	var day = date.getDate();
 	var month = date.getMonth();
@@ -82,7 +81,7 @@ Planner.Sheets.getToday = function (callback) {
 	var formatedDate = day + "." + (month+1) + "." + year;
 	
 	var worksheetName = Planner.getWorksheetName(month);
-	Planner.Sheets.getSpreadsheet(worksheetName, function(rows){
+	Planner.Sheets.getSpreadsheet(session, worksheetName, function(rows){
 		var columnNames = rows [1];
 		var todayData = rows[day+1];
 		var today = new Planner.Day(todayData,formatedDate,weekDay,columnNames);
@@ -90,13 +89,13 @@ Planner.Sheets.getToday = function (callback) {
 	});
 }
 
-Planner.Sheets.updateDay = function (day, month, postData, callback) {
+Planner.Sheets.updateDay = function (session, day, month, postData, callback) {
 	var updateJson = {};
 	if (!isNaN(day)) {
 		console.log(postData);
 		updateJson[day+1] = postData;
 		
-		Planner.Sheets.updateSpreadsheet(month, updateJson, function(rows){
+		Planner.Sheets.updateSpreadsheet(session, month, updateJson, function(rows){
 			callback(updateJson);
 		});
 	} else {
@@ -104,14 +103,14 @@ Planner.Sheets.updateDay = function (day, month, postData, callback) {
 	}
 }
 
-Planner.Sheets.getComingWeek = function (callback) {
+Planner.Sheets.getComingWeek = function (session, callback) {
 	var date = new Date();
 	var day = date.getDate();
 	var month = date.getMonth();
 	var year = date.getFullYear();
 
 	var spreadsheeetName = Planner.getWorksheetName(month);
-	var rows = Planner.Sheets.Month[spreadsheeetName];	
+	var rows = Planner.Sheets.Month[spreadsheeetName];
 	var columnNames = new Array();
 	for (var i in rows[1]) {
 		columnNames.push(rows[1][i]);
@@ -139,52 +138,50 @@ Planner.Sheets.getComingWeek = function (callback) {
 	});*/
 }
 
-Planner.Sheets.setupMonths = function () {
+Planner.Sheets.setupMonths = function (session) {
 	Planner.Sheets.Month = new Array();
-	Planner.Sheets.getSpreadsheet("January", function(rows){
+	Planner.Sheets.getSpreadsheet(session, "January", function(rows){
 		Planner.Sheets.Month["January"] = rows;
 	});
-	Planner.Sheets.getSpreadsheet("February", function(rows){
+	Planner.Sheets.getSpreadsheet(session, "February", function(rows){
 		Planner.Sheets.Month["February"] = rows;
 	});
-	Planner.Sheets.getSpreadsheet("March", function(rows){
+	Planner.Sheets.getSpreadsheet(session, "March", function(rows){
 		Planner.Sheets.Month["March"] = rows;
 	});
-	Planner.Sheets.getSpreadsheet("April", function(rows){
+	Planner.Sheets.getSpreadsheet(session, "April", function(rows){
 		Planner.Sheets.Month["April"] = rows;
 	});
-	Planner.Sheets.getSpreadsheet("May", function(rows){
+	Planner.Sheets.getSpreadsheet(session, "May", function(rows){
 		Planner.Sheets.Month["May"] = rows;
 	});
-	Planner.Sheets.getSpreadsheet("June", function(rows){
+	Planner.Sheets.getSpreadsheet(session, "June", function(rows){
 		Planner.Sheets.Month["June"] = rows;
 	});
-	Planner.Sheets.getSpreadsheet("July", function(rows){
+	Planner.Sheets.getSpreadsheet(session, "July", function(rows){
 		Planner.Sheets.Month["July"] = rows;
 	});
-	Planner.Sheets.getSpreadsheet("August", function(rows){
+	Planner.Sheets.getSpreadsheet(session, "August", function(rows){
 		Planner.Sheets.Month["August"] = rows;
 	});
-	Planner.Sheets.getSpreadsheet("September", function(rows){
+	Planner.Sheets.getSpreadsheet(session, "September", function(rows){
 		Planner.Sheets.Month["September"] = rows;
 	});
-	Planner.Sheets.getSpreadsheet("October", function(rows){
+	Planner.Sheets.getSpreadsheet(session, "October", function(rows){
 		Planner.Sheets.Month["October"] = rows;
 	});
-	Planner.Sheets.getSpreadsheet("November", function(rows){
+	Planner.Sheets.getSpreadsheet(session, "November", function(rows){
 		Planner.Sheets.Month["November"] = rows;
 	});
-	Planner.Sheets.getSpreadsheet("December", function(rows){
+	Planner.Sheets.getSpreadsheet(session, "December", function(rows){
 		Planner.Sheets.Month["December"] = rows;
 	});
 }
 
-
-
-Planner.Sheets.getTodaysRecipe = function (callback) {
-	Planner.Sheets.getToday(function(today) {
+Planner.Sheets.getTodaysRecipe = function (session, callback) {
+	Planner.Sheets.getToday(session, function(today) {
 		var todaysRecipeName = today["menuOfTheDay"];
-		Planner.Sheets.getSpreadsheet('Oppskrifter', function(rows){
+		Planner.Sheets.getSpreadsheet(session, 'Oppskrifter', function(rows){
 			for (key in rows){
 				if (rows[key][1] == todaysRecipeName){
 					var todaysRecipe = new Planner.Recipe(rows[key]);
@@ -197,8 +194,8 @@ Planner.Sheets.getTodaysRecipe = function (callback) {
 
 }
 
-Planner.Sheets.getRecipes = function (callback) {
-	Planner.Sheets.getSpreadsheet('Oppskrifter', function(rows){
+Planner.Sheets.getRecipes = function (session, callback) {
+	Planner.Sheets.getSpreadsheet(session, 'Oppskrifter', function(rows){
 		var recipes = new Planner.Recipes();
 		for (key in rows){
 			recipes.push(new Planner.Recipe(rows[key]));
@@ -208,8 +205,8 @@ Planner.Sheets.getRecipes = function (callback) {
 	});
 }
 
-Planner.Sheets.getPlannedTasks = function (callback) {
-	Planner.Sheets.getSpreadsheet('Planned tasks', function(rows){
+Planner.Sheets.getPlannedTasks = function (session, callback) {
+	Planner.Sheets.getSpreadsheet(session, 'Planned tasks', function(rows){
 		var tasks = new Planner.Tasks();
 		for (key in rows){
 			tasks.push(new Planner.Task(key, rows[key]));
@@ -219,12 +216,12 @@ Planner.Sheets.getPlannedTasks = function (callback) {
 
 }
 
-Planner.Sheets.setCompletedTask = function (task, callback) {
+Planner.Sheets.setCompletedTask = function (session, task, callback) {
 	var updateJson = {};
 	if (!isNaN(task)) {
 		updateJson[task] = { 4: 'x' };
 		
-		Planner.Sheets.updateSpreadsheet('Planned tasks', updateJson, function(rows){
+		Planner.Sheets.updateSpreadsheet(session, 'Planned tasks', updateJson, function(rows){
 			callback(updateJson);
 		});
 	} else {
@@ -232,7 +229,7 @@ Planner.Sheets.setCompletedTask = function (task, callback) {
 	}
 }
 
-Planner.Sheets.getCalendar = function (month, callback) {
+Planner.Sheets.getCalendar = function (session, month, callback) {
 	var date = new Date();
 	var year = date.getFullYear();
 
@@ -240,7 +237,7 @@ Planner.Sheets.getCalendar = function (month, callback) {
 	
 	var monthData = new Planner.Days(worksheetName);
 
-	Planner.Sheets.getSpreadsheet(worksheetName, function(rows){
+	Planner.Sheets.getSpreadsheet(session, worksheetName, function(rows){
 		var columnNames = new Array();
 		for (row in rows[1]) {
 			columnNames.push(rows[1][row]);
@@ -257,41 +254,38 @@ Planner.Sheets.getCalendar = function (month, callback) {
 		}
 		callback(monthData);	
 	});
-
-	
-
 }
 
-Planner.Sheets.getSpreadsheet = function(worksheetName, callback) {
+Planner.Sheets.getSpreadsheet = function(session, worksheetName, callback) {
   	Spreadsheet.load({
 	    debug: true,
 	    spreadsheetId: 'tYzNgvoJTO5K04u5e3Jz7iA',
 	    worksheetName: worksheetName,
-	    oauth : {
-	      email: '325419649433-9pm086ik6gvbvpcle5vrhdvl896acg9v@developer.gserviceaccount.com',
-	      key: process.env.PEM_KEY
-	    }
-
+		accessToken : {
+			type: 'Bearer',
+			token: session.data.accessToken
+		}
   	}, function sheetReady(err, spreadsheet) {
-		if(err) throw err;
+		if(err) throw new Error(err);
 
 	    spreadsheet.receive(function(err, rows, info) {
-	          if(err) throw err;
-	          callback(rows);
+			if(err) throw new Error(err);
+	        callback(rows);
 	    });
 	});
 }
 
-Planner.Sheets.updateSpreadsheet = function(worksheetName, updateJson, callback) {
-  	Spreadsheet.load({
+Planner.Sheets.updateSpreadsheet = function(session, worksheetName, updateJson, callback) {
+  	var session = sessions.lookupOrCreate(request);
+	
+	Spreadsheet.load({
 	    debug: true,
 	    spreadsheetId: 'tYzNgvoJTO5K04u5e3Jz7iA',
 	    worksheetName: worksheetName,
-	    oauth : {
-	      email: '325419649433-9pm086ik6gvbvpcle5vrhdvl896acg9v@developer.gserviceaccount.com',
-	      key: process.env.PEM_KEY
-	    }
-
+		accessToken : {
+			type: 'Bearer',
+			token: session.data.accessToken
+		}
   	}, function sheetReady(err, spreadsheet) {
 		if(err) throw err;
 
