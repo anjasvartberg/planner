@@ -90,12 +90,13 @@ Planner.Sheets.getToday = function (callback) {
 	});
 }
 
-Planner.Sheets.updateDay = function (day, month, callback) {
+Planner.Sheets.updateDay = function (day, month, postData, callback) {
 	var updateJson = {};
-	if (!isNaN(task)) {
-		updateJson[task] = { 4: 'x' };
+	if (!isNaN(day)) {
+		console.log(postData);
+		updateJson[day+1] = postData;
 		
-		Planner.Sheets.updateSpreadsheet('Planned tasks', updateJson, function(rows){
+		Planner.Sheets.updateSpreadsheet(month, updateJson, function(rows){
 			callback(updateJson);
 		});
 	} else {
@@ -108,21 +109,73 @@ Planner.Sheets.getComingWeek = function (callback) {
 	var day = date.getDate();
 	var month = date.getMonth();
 	var year = date.getFullYear();
-	
-	var worksheetName = Planner.getWorksheetName(month);
-	Planner.Sheets.getSpreadsheet(worksheetName, function(rows){
-		var columnNames = new Array();
-		for (var i in rows[1]) {
-			columnNames.push(rows[1][i]);
-		}
-		var week = new Planner.Days(columnNames,"Denne uka");
-		for (var i = 1; i <= 7; i++) {
-			var formatedDate = day+i + "." + (month+1) + "." + year;
-			var weekDay = Planner.getWeekDayName((date.getDay()+i));
-			var dayData = rows[day+i+1];
+
+	var spreadsheeetName = Planner.getWorksheetName(month);
+	var rows = Planner.Sheets.Month[spreadsheeetName];	
+	var columnNames = new Array();
+	for (var i in rows[1]) {
+		columnNames.push(rows[1][i]);
+	}
+	var week = new Planner.Days(columnNames,"Denne uka");
+	for (var i = day + 1; i <= day + 7; i++) {
+		var formatedDate = i + "." + (month+1) + "." + year;
+		var dayDate = new Date(year, month, i);
+		var weekDay = Planner.getWeekDayName((dayDate.getDay()));
+		var dayData = rows[i+1];
+		if (dayData != undefined) {
 			week.push(new Planner.Day(dayData,formatedDate, weekDay, rows[1]));		
+		} else {
+			//var spreadsheeetNameNextMonth = Planner.getWorksheetName(month + 1);
+			//var nextMonth = Planner.Sheets.Month[spreadsheeetNameNextMonth];	
+			
+
 		}
-		callback(week);
+	}
+	callback(week);
+
+
+	/*Planner.Sheets.getSpreadsheet(spreadsheeetName, function(rows){
+		
+	});*/
+}
+
+Planner.Sheets.setupMonths = function () {
+	Planner.Sheets.Month = new Array();
+	Planner.Sheets.getSpreadsheet("January", function(rows){
+		Planner.Sheets.Month["January"] = rows;
+	});
+	Planner.Sheets.getSpreadsheet("February", function(rows){
+		Planner.Sheets.Month["February"] = rows;
+	});
+	Planner.Sheets.getSpreadsheet("March", function(rows){
+		Planner.Sheets.Month["March"] = rows;
+	});
+	Planner.Sheets.getSpreadsheet("April", function(rows){
+		Planner.Sheets.Month["April"] = rows;
+	});
+	Planner.Sheets.getSpreadsheet("May", function(rows){
+		Planner.Sheets.Month["May"] = rows;
+	});
+	Planner.Sheets.getSpreadsheet("June", function(rows){
+		Planner.Sheets.Month["June"] = rows;
+	});
+	Planner.Sheets.getSpreadsheet("July", function(rows){
+		Planner.Sheets.Month["July"] = rows;
+	});
+	Planner.Sheets.getSpreadsheet("August", function(rows){
+		Planner.Sheets.Month["August"] = rows;
+	});
+	Planner.Sheets.getSpreadsheet("September", function(rows){
+		Planner.Sheets.Month["September"] = rows;
+	});
+	Planner.Sheets.getSpreadsheet("October", function(rows){
+		Planner.Sheets.Month["October"] = rows;
+	});
+	Planner.Sheets.getSpreadsheet("November", function(rows){
+		Planner.Sheets.Month["November"] = rows;
+	});
+	Planner.Sheets.getSpreadsheet("December", function(rows){
+		Planner.Sheets.Month["December"] = rows;
 	});
 }
 
@@ -195,7 +248,7 @@ Planner.Sheets.getCalendar = function (month, callback) {
 
 		monthData.columnNames = columnNames;
 		
-		for (var i = 2; i < Object.keys(rows).length; i++) {
+		for (var i = 2; i <= Object.keys(rows).length; i++) {
 			var dayDate = new Date(year, month, rows[i][1]);
 			var formatedDate = rows[i][1] + "." + (month+1) + "." + year;
 			var weekDay = Planner.getWeekDayName((dayDate.getDay()));
@@ -255,10 +308,10 @@ Planner.getWorksheetName = function(month) {
 	var worksheet = '';
 	switch (month) {
 	    case 0:
-	        worksheet = "January"; //Denne uka
+	        worksheet = "January";
 	        break;
 	    case 1:
-	        worksheet = "Febuary";
+	        worksheet = "February";
 	        break;
 	    case 2:
 	        worksheet = "March";
@@ -331,3 +384,5 @@ exports.getPlannedTasks = Planner.Sheets.getPlannedTasks;
 exports.setCompletedTask = Planner.Sheets.setCompletedTask;
 exports.getCalendar = Planner.Sheets.getCalendar;
 exports.getRecipes = Planner.Sheets.getRecipes;
+exports.setupMonths = Planner.Sheets.setupMonths;
+exports.updateDay = Planner.Sheets.updateDay;

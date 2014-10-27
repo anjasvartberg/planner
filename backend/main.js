@@ -5,9 +5,11 @@ process.env = process.env || {};
 var http = require('http');
 var fs = require('fs');
 var url = require("url");
+var querystring = require("querystring");
 
 Planner.Sheets = require(process.cwd() + '/backend/sheets.js');
 
+Planner.Sheets.setupMonths();
 
 var server = http.createServer(function (request, response) {
     response.writeHead(200, {"Content-Type": "text/plain"});
@@ -22,6 +24,8 @@ var server = http.createServer(function (request, response) {
         return;
     }
 
+
+
     if (parsedUrl.pathname == "/day") {
           Planner.Sheets.getToday(Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/week") {
@@ -35,7 +39,13 @@ var server = http.createServer(function (request, response) {
     } else if (parsedUrl.pathname == "/calendar") {
         Planner.Sheets.getCalendar(Number(parsedUrl.query.month), Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/updateDay") {
-        Planner.Sheets.updateDay(Number(parsedUrl.query.day), parsedUrl.query.month, Planner.writeJson(response));
+        var chunk = '';
+        request.on('data', function (data) {
+            chunk += data;
+        });
+        request.on('end', function () {
+            Planner.Sheets.updateDay(Number(parsedUrl.query.day), parsedUrl.query.month, querystring.parse(chunk), Planner.writeJson(response));
+        });
     } else if (parsedUrl.pathname == "/recipes") {
         Planner.Sheets.getRecipes(Planner.writeJson(response));
     } else {

@@ -152,25 +152,26 @@
   }); 
 
   Planner.Calendar.CalendarView = Simple.View.extend({
-    template:'<div class="page-header"><h1>{{name}}</h1></div>' +
+    template:'<div class="page-header"><h1 class="month">{{name}}</h1></div>' +
     '<div class="panel-group" id="accordion">' +
       '{{#days}}' +
-          '<div class="panel panel-{{style}}">' +
+          '<div class="panel panel-{{style}}" id="{{id}}">' +
             '<div class="panel-heading" style="position:relative"><h4 class="panel-title">' + 
             '<a data-toggle="collapse" data-target="#collapse{{id}}">' +
             '{{weekDay}} {{date}}: {{plans}}</a></h4>' + 
             '<button type="button" class="btn btn-xs btn-primary edit" style="position:absolute;right:10px;top:10px">Endre</button>' +
             '<button type="button" class="btn btn-xs btn-danger save" style="position:absolute;right:10px;top:10px;display:none">Lagre</button></div>' +
           '<div id="collapse{{id}}" class="panel-collapse collapse">' +
+            '<form>' +
             '<ul class="list-group">' +
               '<li class="list-group-item">Dagens planer: <span class="editable">{{plans}}</span> </li>' +
               '<li class="list-group-item">Dagens middag: <span class="editable dinner">{{menuOfTheDay}}</span></li>' +
               '{{#restCols}}' + 
               '<li class="list-group-item">{{{.}}}</li>' +
               '{{/restCols}}' +
-            '</ul></div></div>' +
+            '</ul></form></div></div>' +
       '{{/days}}</div>',
-    templateDropdown: '<select class="form-control">' +
+    templateDropdown: '<select name="3" class="form-control">' +
         '<option></option>'+
         '{{#recipes}}'+
         '<option>{{name}}</option>'+
@@ -213,7 +214,7 @@
             $(field).html(that.recipesHtml);
             $(field).find("select").val(text);
           } else {
-            $(field).html( "<input class='form-control' style='width: 100%' type='text' value='"+text+"'/>");  
+            $(field).html( "<input name='" + (index+2) + "' class='form-control' style='width: 100%' type='text' value='"+text+"'/>");  
           }
         });
       });
@@ -222,11 +223,18 @@
         that.hide();
         that.siblings('.edit').show();
         var editableFields = that.parents(".panel").find(".editable");
-        editableFields.each(function(index, field){
-          var text = $(field).find("input").val();
-          $(field).html(text);
+        $.post( 
+           "/updateDay?day=" + that.parents(".panel").attr("id") + "&month=" + $("h1.month").text(),
+           editableFields.find("input, select").serialize(),
+           function(data) {
+              editableFields.each(function(index, field){
+                var text = $(field).find("input, select").val();
+                $(field).html(text);
+              });           
+            }
 
-        });
+        );
+
       });
     },
     render: function() {
