@@ -36,6 +36,15 @@
     recipes.fetch();
   }
 
+  Planner.startRecepies = function() {
+    var week = new Planner.Week();
+    var recipes = new Planner.Recipes();
+    var el = $("#groceries");
+    var view = new Planner.Groceries.GroceriesView({week: week,recipes: recipes, el: el});    
+    week.fetch();
+    recipes.fetch();
+  }
+
   Planner.Day = Simple.Model.extend({
     dataType: "json",
     initialize: function() {
