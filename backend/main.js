@@ -71,6 +71,8 @@ var server = http.createServer(function (request, response) {
         Planner.Sheets.setCompletedTask(session, parsedUrl.query.task, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/calendar") {
         Planner.Sheets.getCalendar(session, Number(parsedUrl.query.month), Planner.writeJson(response));
+    } else if (parsedUrl.pathname == "/groceries") {
+        Planner.Sheets.getGroceries(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/updateDay") {
         var chunk = '';
         request.on('data', function (data) {

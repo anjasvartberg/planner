@@ -61,6 +61,20 @@ Planner.Tasks = function() {
 	} 
 }
 
+Planner.ListItem = function(id, name, done) {
+	this.id = id;
+	this.name = name;
+	this.done = done ? "checked" : "";
+}
+
+Planner.Groceries = function() {
+	this.groceries = new Array();
+	this.length = 0;
+	this.push = function(listItem) {
+		this.groceries.push(listItem);
+	} 
+}
+
 Planner.Sheets.getToday = function (session, callback) {
 	var date = new Date();
 	var day = date.getDate();
@@ -93,6 +107,8 @@ Planner.Sheets.updateDay = function (session, day, month, postData, callback) {
 }
 
 Planner.Sheets.getWeek = function (startDate, session, callback) {
+	console.log(new Date());
+	var startDate = new Date(startDate);
 	var day = startDate.getDate();
 	var month = startDate.getMonth();
 	var year = startDate.getFullYear();
@@ -202,6 +218,16 @@ Planner.Sheets.getRecipes = function (session, callback) {
 		}
 		callback(recipes);			
 		
+	});
+}
+
+Planner.Sheets.getGroceries = function (session, callback) {
+	Planner.Sheets.getSpreadsheet(session, 'Groceries', function(rows){
+		var groceries = new Planner.Groceries();
+		for (key in rows){
+			groceries.push(new Planner.ListItem(key, rows[key][1],rows[key][2]));
+		}
+		callback(groceries);
 	});
 }
 
@@ -315,3 +341,4 @@ exports.getCalendar = Planner.Sheets.getCalendar;
 exports.getRecipes = Planner.Sheets.getRecipes;
 exports.setupMonths = Planner.Sheets.setupMonths;
 exports.updateDay = Planner.Sheets.updateDay;
+exports.getGroceries = Planner.Sheets.getGroceries;

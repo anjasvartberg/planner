@@ -11,8 +11,12 @@
 
   Planner.Week = Simple.Model.extend({
     dataType: "json",
-    initialize: function() {
+    initialize: function(date) {
+      if (date != undefined) {
+        this.url = "/week?startDate=" + date;
+      } else {
         this.url = "/week";
+      }
     }
   });
 

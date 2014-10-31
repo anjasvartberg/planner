@@ -37,12 +37,10 @@
   }
 
   Planner.startGroceries = function() {
-    var week = new Planner.Week();
-    var recipes = new Planner.Recipes();
+    var groceries = new Planner.Groceries();
     var el = $("#groceries");
-    var view = new Planner.Groceries.GroceriesView({week: week,recipes: recipes, el: el});    
-    week.fetch();
-    recipes.fetch();
+    var view = new Planner.Groceries.GroceriesView({groceries: groceries, el: el});    
+    groceries.fetch();
   }
 
  
@@ -91,11 +89,31 @@
     }
   });
 
-  Planner.Groceries = "";
-  Planner.Groceries.GroceriesView = Simple.View.extend({
-    template: '',
+  Planner.Groceries = Simple.Model.extend({
+    dataType: "json",
     initialize: function() {
+        this.url = "/groceries";
+    }
+  });
 
+  Planner.Groceries.GroceriesView = Simple.View.extend({
+    template: '<div class="panel panel-default">' +
+                '<div class="panel-heading"><h3 class="panel-title">Handleliste</h3></div>' + 
+                '<ul>' +
+                  '{{#groceries}}' +
+                    '<li><label class="checkbox"><input type="checkbox" value="{{id}}" {{done}}>{{name}}</label></li>' +
+                  '{{/groceries}}' +
+                '</ul>' +
+              '</div>',
+    initialize: function(options) {
+      this.groceries = options.groceries;
+      this.groceries.on("fetch:finished", this.render, this);
+       
+    },
+    render: function() {
+      var groceriesAttrs = this.groceries.attrs();
+      var html = Mustache.to_html(this.template, groceriesAttrs);
+      this.el.html(html);
     }
   });
 
