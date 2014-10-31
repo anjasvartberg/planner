@@ -38,7 +38,7 @@
         '{{weekDay}} {{date}}: {{plans}}</a></h4>' + 
         '<button type="button" class="btn btn-xs btn-primary edit" style="position:absolute;right:10px;top:10px">Endre</button>' +
         '<button type="button" class="btn btn-xs btn-danger save" style="position:absolute;right:10px;top:10px;display:none">Lagre</button></div>' +
-      '<div id="collapse{{id}}" class="panel-collapse collapse">' +
+      '<div id="collapse{{id}}" class="panel-collapse {{collapse}}">' +
         '<form>' +
         '<ul class="list-group">' +
           '{{#restCols}}' + 
@@ -87,11 +87,12 @@
 
       });
     },
-    renderDay: function (day) {
+    renderDay: function (day, collapse) {
       day.style = 'default';
       if (day.weekDay == "Lørdag" || day.weekDay == "Søndag"){
          day.style = 'danger';
       }
+      day.collapse = collapse; 
       day.plans = day.restData[0];
       day.restCols = new Array();
       for (column in day.columnNames) {
@@ -100,7 +101,6 @@
       }  
     },
     renderRecipes: function(element) {
-        console.log("YOYO");
         var recipesAttrs = this.recipes.attrs();  
         var html = Mustache.to_html(this.templateDropdown, recipesAttrs);
         this.recipesHtml = html;    
@@ -109,27 +109,18 @@
   });
 
   Planner.Day.DayView = Simple.View.extend({
-    template:'<div class="panel panel-default">' +
-            '<div class="panel-heading"><h3 class="panel-title"> {{weekDay}} {{date}} </h3></div>' +
-              '<ul class="list-group">' + 
-                '{{#restCols}}' + 
-                '<li class="list-group-item">{{{.}}}</li>' +
-                '{{/restCols}}' +
-              '</ul></div>',
+    template: new Planner.Day.SingleDayView().template,
     initialize: function(options) {
       this.day = options.day;
       this.day.on("fetch:finished", this.render, this);
       this.el = options.el;
-    
+      this.dayView = new Planner.Day.SingleDayView();
+      this.dayView.setupListeners(this.el);
+      
     },
     render: function() {
       var dayAttrs = this.day.attrs();
-      dayAttrs.restCols = new Array();
-      for (column in dayAttrs.columnNames) {
-        if (dayAttrs.restData[column] != null) {  
-          dayAttrs.restCols.push("<strong>" + dayAttrs.columnNames[column] + ":</strong> " + dayAttrs.restData[column]);
-        }
-      }
+      this.dayView.renderDay(dayAttrs, "");    
       var html = Mustache.to_html(this.template, dayAttrs);
       this.el.html(html);
     }
@@ -137,36 +128,20 @@
 
   Planner.Week.WeekView = Simple.View.extend({
     template:'<div class="page-header"><h1>Neste uke</h1></div>' +
-      '{{#days}}' +
-        '<div class="col-md-6">' +
-          '<div class="panel panel-{{style}}">' +
-            '<div class="panel-heading"><h3 class="panel-title">{{weekDay}} {{date}}</h3></div>' +
-              '<ul class="list-group">' +
-                '{{#restCols}}' + 
-                '<li class="list-group-item">{{{.}}}</li>' +
-                '{{/restCols}}' +
-              '</ul></div></div>' +
-      '{{/days}}',
+      '{{#days}}<div class="col-md-6">' + new Planner.Day.SingleDayView().template +
+      '</div>{{/days}}',
     initialize: function(options) {
       this.week = options.week;
       this.week.on("fetch:finished", this.render, this);
       this.el = options.el;
-    
+      this.dayView = new Planner.Day.SingleDayView();
+      this.dayView.setupListeners(this.el);
+      
     },
     render: function() {
       var weekAttrs = this.week.attrs();
-        for (day in weekAttrs.days) {
-          var day = weekAttrs.days[day];
-          day.style = 'default';
-          if (day.weekDay == "Lørdag" || day.weekDay == "Søndag"){
-             day.style = 'danger';
-          }
-          day.restCols = new Array();
-          for (column in day.columnNames) {
-            if (day.restData[column] != null) {
-              day.restCols.push("<strong>" + day.columnNames[column] + ":</strong> " + day.restData[column]);  
-            }
-          }  
+      for (day in weekAttrs.days) {
+        this.dayView.renderDay(weekAttrs.days[day], "");    
       }
       var html = Mustache.to_html(this.template, weekAttrs);
       this.el.html(html);
@@ -180,7 +155,6 @@
       '{{/days}}</div>',
     initialize: function(options) {
       this.calendar = options.calendar;
-      this.recipes = options.recipes;
       this.el = options.el;
       this.dayView = new Planner.Day.SingleDayView();
       
@@ -206,8 +180,7 @@
     render: function() {
       var calendarAttrs = this.calendar.attrs();
       for (day in calendarAttrs.days) {
-        var day = calendarAttrs.days[day];
-        this.dayView.renderDay(day);
+        this.dayView.renderDay(calendarAttrs.days[day], "collapse");
       }
       var html = Mustache.to_html(this.template, calendarAttrs);
       this.el.html(html);
