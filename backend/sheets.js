@@ -5,25 +5,15 @@ var Spreadsheet = require('edit-google-spreadsheet');
 
 var sessions = require(process.cwd() + '/backend/lib/session.js');
 
-Planner.Day = function(dayData, formatedDate, weekDay, columnNames) {
+Planner.Day = function(dayData, month, formatedDate, weekDay, columnNames) {
 	this.id = dayData[1];
+	this.month = month;
 	this.date = formatedDate;
 	this.weekDay = weekDay;
 	this.restData = new Array();
 	this.columnNames = new Array();
 	for (var i = 2; i <= Object.keys(columnNames).length; i ++) {
 		this.columnNames.push(columnNames[i]);
-		this.restData.push(dayData[i]);
-	}
-
-}
-
-Planner.DaySimple = function(dayData, formatedDate, weekDay) {
-	this.id = dayData[1];
-	this.date = formatedDate;
-	this.weekDay = weekDay;
-	this.restData = new Array();
-	for (var i = 2; i <= Object.keys(dayData).length; i ++) {
 		this.restData.push(dayData[i]);
 	}
 
@@ -83,7 +73,7 @@ Planner.Sheets.getToday = function (session, callback) {
 	Planner.Sheets.getSpreadsheet(session, worksheetName, function(rows){
 		var columnNames = rows [1];
 		var todayData = rows[day+1];
-		var today = new Planner.Day(todayData,formatedDate,weekDay,columnNames);
+		var today = new Planner.Day(todayData,month,formatedDate,weekDay,columnNames);
 		callback(today);
 	});
 }
@@ -121,7 +111,7 @@ Planner.Sheets.getWeek = function (startDate, session, callback) {
 		var weekDay = Planner.getWeekDayName((dayDate.getDay()));
 		var dayData = rows[i+1];
 		if (dayData != undefined) {
-			week.push(new Planner.Day(dayData,formatedDate, weekDay, rows[1]));		
+			week.push(new Planner.Day(dayData,month,formatedDate, weekDay, rows[1]));		
 		} else {
 			daysLeft = day + 7 - i + 1;
 			break;
@@ -137,7 +127,7 @@ Planner.Sheets.getWeek = function (startDate, session, callback) {
 			var weekDay = Planner.getWeekDayName((dayDate.getDay()));
 			var dayData = nextMonth[j+1];
 			if (dayData != undefined) {
-				week.push(new Planner.Day(dayData,formatedDate, weekDay, nextMonth[1]));		
+				week.push(new Planner.Day(dayData,month,formatedDate, weekDay, nextMonth[1]));		
 			}
 		}
 	}
@@ -260,7 +250,7 @@ Planner.Sheets.getCalendar = function (session, month, callback) {
 			var formatedDate = rows[i][1] + "." + (month+1) + "." + year;
 			var weekDay = Planner.getWeekDayName((dayDate.getDay()));
 			var dayData = rows[i];
-			monthData.push(new Planner.Day(dayData, formatedDate, weekDay, rows[1]));		
+			monthData.push(new Planner.Day(dayData, month, formatedDate, weekDay, rows[1]));		
 		}
 		callback(monthData);	
 	});

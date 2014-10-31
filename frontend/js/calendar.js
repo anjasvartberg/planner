@@ -59,7 +59,8 @@
         $(this).parents(".panel").find(".collapse").collapse('show');
         var editableFields = $(this).parents(".panel").find(".editable");
         editableFields.each(function(index, field){
-          var text = $(field).html();
+          var text = $(field).html() != "null" ? $(field).html() : "";
+          $(field).parent("li").show();
           if ($(field).hasClass("dinner")) {
             $(field).html(that.recipesHtml);
             $(field).find("select").val(text);
@@ -80,6 +81,9 @@
               editableFields.each(function(index, field){
                 var text = $(field).find("input, select").val();
                 $(field).html(text);
+                if (text == "null" || text == "") {
+                  $(field).parent("li").hide();
+                }
               });           
             }
 
@@ -104,6 +108,15 @@
         var recipesAttrs = this.recipes.attrs();  
         var html = Mustache.to_html(this.templateDropdown, recipesAttrs);
         this.recipesHtml = html;    
+    },
+    hideEmptyFields: function() {
+      var editableFields = $(".panel").find(".editable");
+      editableFields.each(function(index, field){
+        var text = $(field).html();
+        if (text == "null" || text == "") {
+          $(field).parent("li").hide();
+        }
+      });
     }
 
   });
@@ -123,6 +136,8 @@
       this.dayView.renderDay(dayAttrs, "");    
       var html = Mustache.to_html(this.template, dayAttrs);
       this.el.html(html);
+      this.dayView.hideEmptyFields();
+
     }
   });
 
@@ -145,6 +160,8 @@
       }
       var html = Mustache.to_html(this.template, weekAttrs);
       this.el.html(html);
+      this.dayView.hideEmptyFields();
+
     }
   }); 
 
@@ -184,10 +201,8 @@
       }
       var html = Mustache.to_html(this.template, calendarAttrs);
       this.el.html(html);
+      this.dayView.hideEmptyFields();
     }
   }); 
 
-  Planner.Day.setWeekDay = function() {
-
-  }
 })(Simple, Mustache);
