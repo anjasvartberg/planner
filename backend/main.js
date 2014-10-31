@@ -61,7 +61,8 @@ var server = http.createServer(function (request, response) {
     if (parsedUrl.pathname == "/day") {
         Planner.Sheets.getToday(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/week") {
-        Planner.Sheets.getComingWeek(session, Planner.writeJson(response));
+        var date = parsedUrl.query.startDate != undefined ? parsedUrl.query.startDate : new Date(); 
+        Planner.Sheets.getWeek(date, session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/recipe") {
         Planner.Sheets.getTodaysRecipe(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/tasks") {

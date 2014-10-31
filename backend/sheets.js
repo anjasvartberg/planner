@@ -9,11 +9,9 @@ Planner.Day = function(dayData, formatedDate, weekDay, columnNames) {
 	this.id = dayData[1];
 	this.date = formatedDate;
 	this.weekDay = weekDay;
-	this.plans = dayData[2];
-	this.menuOfTheDay = dayData[3];
 	this.restData = new Array();
 	this.columnNames = new Array();
-	for (var i = 4; i <= Object.keys(columnNames).length; i ++) {
+	for (var i = 2; i <= Object.keys(columnNames).length; i ++) {
 		this.columnNames.push(columnNames[i]);
 		this.restData.push(dayData[i]);
 	}
@@ -21,6 +19,7 @@ Planner.Day = function(dayData, formatedDate, weekDay, columnNames) {
 }
 
 Planner.DaySimple = function(dayData, formatedDate, weekDay) {
+	this.id = dayData[1];
 	this.date = formatedDate;
 	this.weekDay = weekDay;
 	this.restData = new Array();
@@ -103,11 +102,10 @@ Planner.Sheets.updateDay = function (session, day, month, postData, callback) {
 	}
 }
 
-Planner.Sheets.getComingWeek = function (session, callback) {
-	var date = new Date();
-	var day = date.getDate();
-	var month = date.getMonth();
-	var year = date.getFullYear();
+Planner.Sheets.getWeek = function (startDate, session, callback) {
+	var day = startDate.getDate();
+	var month = startDate.getMonth();
+	var year = startDate.getFullYear();
 
 	var spreadsheeetName = Planner.getWorksheetName(month);
 	var rows = Planner.Sheets.Month[spreadsheeetName];
@@ -116,6 +114,7 @@ Planner.Sheets.getComingWeek = function (session, callback) {
 		columnNames.push(rows[1][i]);
 	}
 	var week = new Planner.Days(columnNames,"Denne uka");
+	var daysLeft = 0;
 	for (var i = day + 1; i <= day + 7; i++) {
 		var formatedDate = i + "." + (month+1) + "." + year;
 		var dayDate = new Date(year, month, i);
@@ -124,18 +123,27 @@ Planner.Sheets.getComingWeek = function (session, callback) {
 		if (dayData != undefined) {
 			week.push(new Planner.Day(dayData,formatedDate, weekDay, rows[1]));		
 		} else {
-			//var spreadsheeetNameNextMonth = Planner.getWorksheetName(month + 1);
-			//var nextMonth = Planner.Sheets.Month[spreadsheeetNameNextMonth];	
-			
-
+			daysLeft = day + 7 - i + 1;
+			break;
 		}
 	}
+
+	if (daysLeft > 0) {
+		var spreadsheeetNameNextMonth = Planner.getWorksheetName(month + 1);
+		var nextMonth = Planner.Sheets.Month[spreadsheeetNameNextMonth];			
+		for (var j = 1; j <= daysLeft; j++) {
+			var formatedDate = j + "." + (month+2) + "." + year;
+			var dayDate = new Date(year, month+1, j);
+			var weekDay = Planner.getWeekDayName((dayDate.getDay()));
+			var dayData = nextMonth[j+1];
+			if (dayData != undefined) {
+				week.push(new Planner.Day(dayData,formatedDate, weekDay, nextMonth[1]));		
+			}
+		}
+	}
+
+
 	callback(week);
-
-
-	/*Planner.Sheets.getSpreadsheet(spreadsheeetName, function(rows){
-		
-	});*/
 }
 
 Planner.Sheets.setupMonths = function (session) {
@@ -180,7 +188,9 @@ Planner.Sheets.setupMonths = function (session) {
 
 Planner.Sheets.getTodaysRecipe = function (session, callback) {
 	Planner.Sheets.getToday(session, function(today) {
-		var todaysRecipeName = today["menuOfTheDay"];
+		var todaysRecipeName = today["restData"][1];
+		console.log(todaysRecipeName);
+		
 		Planner.Sheets.getSpreadsheet(session, 'Oppskrifter', function(rows){
 			for (key in rows){
 				if (rows[key][1] == todaysRecipeName){
@@ -276,8 +286,6 @@ Planner.Sheets.getSpreadsheet = function(session, worksheetName, callback) {
 }
 
 Planner.Sheets.updateSpreadsheet = function(session, worksheetName, updateJson, callback) {
-  	var session = sessions.lookupOrCreate(request);
-	
 	Spreadsheet.load({
 	    debug: true,
 	    spreadsheetId: 'tYzNgvoJTO5K04u5e3Jz7iA',
@@ -372,7 +380,7 @@ Planner.getWeekDayName = function(weekDay) {
 
 }
 exports.getToday = Planner.Sheets.getToday;
-exports.getComingWeek = Planner.Sheets.getComingWeek;
+exports.getWeek = Planner.Sheets.getWeek;
 exports.getTodaysRecipe = Planner.Sheets.getTodaysRecipe;
 exports.getPlannedTasks = Planner.Sheets.getPlannedTasks;
 exports.setCompletedTask = Planner.Sheets.setCompletedTask;

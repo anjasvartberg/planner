@@ -36,7 +36,7 @@
     recipes.fetch();
   }
 
-  Planner.startRecepies = function() {
+  Planner.startGroceries = function() {
     var week = new Planner.Week();
     var recipes = new Planner.Recipes();
     var el = $("#groceries");
@@ -49,7 +49,27 @@
     dataType: "json",
     initialize: function() {
         this.url = "/day";
-    }
+    }, 
+    template: '<div class="panel panel-{{style}}" id="{{id}}">' +
+            '<div class="panel-heading" style="position:relative"><h4 class="panel-title">' + 
+            '<a data-toggle="collapse" data-target="#collapse{{id}}">' +
+            '{{weekDay}} {{date}}: {{plans}}</a></h4>' + 
+            '<button type="button" class="btn btn-xs btn-primary edit" style="position:absolute;right:10px;top:10px">Endre</button>' +
+            '<button type="button" class="btn btn-xs btn-danger save" style="position:absolute;right:10px;top:10px;display:none">Lagre</button></div>' +
+          '<div id="collapse{{id}}" class="panel-collapse collapse">' +
+            '<form>' +
+            '<ul class="list-group">' +
+              '{{#restCols}}' + 
+              '<li class="list-group-item">{{{.}}}</li>' +
+              '{{/restCols}}' +
+            '</ul></form></div></div>',
+    templateDropdown: '<select name="3" class="form-control">' +
+        '<option></option>'+
+        '{{#recipes}}'+
+        '<option>{{name}}</option>'+
+        '{{/recipes}}'+
+      '</select>'
+
   });
 
   Planner.Week = Simple.Model.extend({
@@ -93,9 +113,6 @@
   Planner.Day.DayView = Simple.View.extend({
     template:'<div class="panel panel-default">' +
             '<div class="panel-heading"><h3 class="panel-title"> {{weekDay}} {{date}} </h3></div>' +
-              '<div class="panel-body">' +
-                '{{plans}}' +
-              '</div>' +
               '<ul class="list-group">' + 
                 '{{#restCols}}' + 
                 '<li class="list-group-item">{{{.}}}</li>' +
@@ -127,8 +144,6 @@
           '<div class="panel panel-{{style}}">' +
             '<div class="panel-heading"><h3 class="panel-title">{{weekDay}} {{date}}</h3></div>' +
               '<ul class="list-group">' +
-                '<li class="list-group-item">Dagens planer: {{plans}} </li>' +
-                '<li class="list-group-item">Dagens middag: {{menuOfTheDay}}</li>' +
                 '{{#restCols}}' + 
                 '<li class="list-group-item">{{{.}}}</li>' +
                 '{{/restCols}}' +
@@ -173,8 +188,6 @@
           '<div id="collapse{{id}}" class="panel-collapse collapse">' +
             '<form>' +
             '<ul class="list-group">' +
-              '<li class="list-group-item">Dagens planer: <span class="editable">{{plans}}</span> </li>' +
-              '<li class="list-group-item">Dagens middag: <span class="editable dinner">{{menuOfTheDay}}</span></li>' +
               '{{#restCols}}' + 
               '<li class="list-group-item">{{{.}}}</li>' +
               '{{/restCols}}' +
@@ -254,6 +267,7 @@
         if (day.weekDay == "Lørdag" || day.weekDay == "Søndag"){
            day.style = 'danger';
         }
+        day.plans = day.restData[0];
         day.restCols = new Array();
         for (column in day.columnNames) {
           day.restCols.push("<strong>" + day.columnNames[column] + ":</strong> <span class='editable'>" + day.restData[column] + "</span>");  
@@ -327,6 +341,14 @@
     saveTask: function(task) {
         this.url = "/completeTask?task=" + task;  
         this.fetch();
+    }
+  });
+
+  Planner.Groceries = "";
+  Planner.Groceries.GroceriesView = Simple.View.extend({
+    template: '',
+    initialize: function() {
+
     }
   });
 
