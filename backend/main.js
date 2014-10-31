@@ -9,6 +9,9 @@ var google = require('googleapis');
 var querystring = require("querystring");
 
 Planner.Sheets = require(process.cwd() + '/backend/sheets.js');
+Planner.Calendar = require(process.cwd() + '/backend/calendar.js');
+Planner.Todo = require(process.cwd() + '/backend/tasks.js');
+Planner.Cookbook = require(process.cwd() + '/backend/cookbook.js');
 Planner.oauth2Client = new google.auth.OAuth2('325419649433-mlppjiobg9i3p9aol2ediptkl72chfs5.apps.googleusercontent.com', 'zJlcxM8eOD6WKEiEQvYoTuHr', 'http://localhost:8000/oauth2callback');
 
 var sessions = require(process.cwd() + '/backend/lib/session.js');
@@ -39,7 +42,7 @@ var server = http.createServer(function (request, response) {
             if(err) throw new Error(err);
             Planner.oauth2Client.setCredentials(tokens);
             session.data.accessToken = tokens.access_token;
-            Planner.Sheets.setupMonths(session);
+            Planner.Calendar.setupMonths(session);
             setTimeout(function() {
                 response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
                 response.setHeader('location', "/");
@@ -59,30 +62,30 @@ var server = http.createServer(function (request, response) {
     }
 
     if (parsedUrl.pathname == "/day") {
-        Planner.Sheets.getToday(session, Planner.writeJson(response));
+        Planner.Calendar.getToday(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/week") {
         var date = parsedUrl.query.startDate != undefined ? parsedUrl.query.startDate : new Date(); 
-        Planner.Sheets.getWeek(date, session, Planner.writeJson(response));
+        Planner.Calendar.getWeek(date, session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/recipe") {
-        Planner.Sheets.getTodaysRecipe(session, Planner.writeJson(response));
+        Planner.Cookbook.getTodaysRecipe(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/tasks") {
-        Planner.Sheets.getPlannedTasks(session, Planner.writeJson(response));
+        Planner.Todo.getPlannedTasks(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/completeTask") {
-        Planner.Sheets.setCompletedTask(session, parsedUrl.query.task, Planner.writeJson(response));
+        Planner.Todo.setCompletedTask(session, parsedUrl.query.task, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/calendar") {
-        Planner.Sheets.getCalendar(session, Number(parsedUrl.query.month), Planner.writeJson(response));
+        Planner.Calendar.getCalendar(session, Number(parsedUrl.query.month), Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/groceries") {
-        Planner.Sheets.getGroceries(session, Planner.writeJson(response));
+        Planner.Cookbook.getGroceries(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/updateDay") {
         var chunk = '';
         request.on('data', function (data) {
             chunk += data;
         });
         request.on('end', function () {
-            Planner.Sheets.updateDay(session, Number(parsedUrl.query.day), parsedUrl.query.month, querystring.parse(chunk), Planner.writeJson(response));
+            Planner.Calendar.updateDay(session, Number(parsedUrl.query.day), parsedUrl.query.month, querystring.parse(chunk), Planner.writeJson(response));
         });
     } else if (parsedUrl.pathname == "/recipes") {
-        Planner.Sheets.getRecipes(session, Planner.writeJson(response));
+        Planner.Cookbook.getRecipes(session, Planner.writeJson(response));
     } else {
         fs.readFile(fileroot + request.url, function(error, content) {
             if (error) {
