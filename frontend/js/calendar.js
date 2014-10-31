@@ -75,6 +75,7 @@
         that.siblings('.edit').show();
         var editableFields = that.parents(".panel").find(".editable");
         $.post( 
+           //TODO: Finn ut en måte å få med måned på, slik at man vet hvilket sheet man skal oppdatere
            "/updateDay?day=" + that.parents(".panel").attr("id") + "&month=" + $("h1.month").text(),
            editableFields.find("input, select").serialize(),
            function(data) {
