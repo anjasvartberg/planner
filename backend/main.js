@@ -1,6 +1,8 @@
 var Planner = {};
 
 process.env = process.env || {};
+var port = process.env.PORT || 8000;
+var host = process.env.PORT ? "https://tidsplan.herokuapp.com" : "http://localhost:"+port;
 
 var http = require('http');
 var fs = require('fs');
@@ -12,7 +14,7 @@ Planner.Sheets = require(process.cwd() + '/backend/sheets.js');
 Planner.Calendar = require(process.cwd() + '/backend/calendar.js');
 Planner.Todo = require(process.cwd() + '/backend/tasks.js');
 Planner.Cookbook = require(process.cwd() + '/backend/cookbook.js');
-Planner.oauth2Client = new google.auth.OAuth2('325419649433-mlppjiobg9i3p9aol2ediptkl72chfs5.apps.googleusercontent.com', 'zJlcxM8eOD6WKEiEQvYoTuHr', 'http://localhost:8000/oauth2callback');
+Planner.oauth2Client = new google.auth.OAuth2(process.env.client_id, process.env.client_secret, host+'/oauth2callback');
 
 var sessions = require(process.cwd() + '/backend/lib/session.js');
 
@@ -104,10 +106,10 @@ var server = http.createServer(function (request, response) {
 });
 
 // Listen on port 8000, IP defaults to 127.0.0.1
-server.listen(8000);
+server.listen(port);
 
 // Put a friendly message on the terminal
-console.log("Server running at http://127.0.0.1:8000/");
+console.log("Server running at http://127.0.0.1:"+port);
 
 Planner.writeJson = function(response) {
     return function(data) {
