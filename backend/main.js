@@ -2,6 +2,7 @@ var Planner = {};
 
 process.env = process.env || {};
 var port = process.env.PORT || 8000;
+var host = process.env.PORT ? "https://tidsplan.herokuapp.com" : "http://localhost:"+port;
 
 var http = require('http');
 var fs = require('fs');
@@ -10,7 +11,7 @@ var google = require('googleapis');
 var querystring = require("querystring");
 
 Planner.Sheets = require(process.cwd() + '/backend/sheets.js');
-Planner.oauth2Client = new google.auth.OAuth2('325419649433-mlppjiobg9i3p9aol2ediptkl72chfs5.apps.googleusercontent.com', 'zJlcxM8eOD6WKEiEQvYoTuHr', 'http://localhost:8000/oauth2callback');
+Planner.oauth2Client = new google.auth.OAuth2('325419649433-mlppjiobg9i3p9aol2ediptkl72chfs5.apps.googleusercontent.com', 'zJlcxM8eOD6WKEiEQvYoTuHr', host+'/oauth2callback');
 
 var sessions = require(process.cwd() + '/backend/lib/session.js');
 
