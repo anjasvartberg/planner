@@ -1,0 +1,18 @@
+{
+  "name": "planner",
+  "version": "1.0.0",
+  "description": "Tidsplan",
+  "main": "backend/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Anja Consulting",
+  "license": "",
+  "engines": {
+    "node": "0.10.x"
+  },
+  "dependencies": {
+    "edit-google-spreadsheet": "0.2.13",
+    "googleapis": "1.0.20"
+  }
+}
