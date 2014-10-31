@@ -303,11 +303,11 @@ Planner.getWorksheetName = function(month) {
     return months[month];
 }
 
-
 Planner.getWeekDayName = function(weekDay) {
     var weekdays = {1: "Mandag", 2: "Tirsdag", 3: "Onsdag", 4: "Torsdag", 5: "Fredag", 6: "Lørdag", 0: "Søndag"};
     return weekdays[weekDay%7];
 }
+
 exports.getToday = Planner.Sheets.getToday;
 exports.getComingWeek = Planner.Sheets.getComingWeek;
 exports.getTodaysRecipe = Planner.Sheets.getTodaysRecipe;
