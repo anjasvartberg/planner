@@ -9,9 +9,10 @@ var fs = require('fs');
 var url = require("url");
 var google = require('googleapis');
 var querystring = require("querystring");
+var secrets = require("./secrets.js");
 
 Planner.Sheets = require(process.cwd() + '/backend/sheets.js');
-Planner.oauth2Client = new google.auth.OAuth2('325419649433-mlppjiobg9i3p9aol2ediptkl72chfs5.apps.googleusercontent.com', 'zJlcxM8eOD6WKEiEQvYoTuHr', host+'/oauth2callback');
+Planner.oauth2Client = new google.auth.OAuth2(secrets.client_id, secrets.client_secret, host+'/oauth2callback');
 
 var sessions = require(process.cwd() + '/backend/lib/session.js');
 
