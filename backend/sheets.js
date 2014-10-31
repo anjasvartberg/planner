@@ -307,78 +307,15 @@ Planner.Sheets.updateSpreadsheet = function(session, worksheetName, updateJson, 
 	});
 }
 Planner.getWorksheetName = function(month) {
-	var worksheet = '';
-	switch (month) {
-	    case 0:
-	        worksheet = "January";
-	        break;
-	    case 1:
-	        worksheet = "February";
-	        break;
-	    case 2:
-	        worksheet = "March";
-	        break;
-	    case 3:
-	        worksheet = "April";
-	        break;
-	    case 4:
-	        worksheet = "May";
-	        break;
-	    case 5:
-	        worksheet = "June";
-	        break;
-	    case 6:
-	        worksheet = "July";
-	        break;
-	    case 7:
-	        worksheet = "August";
-	        break;
-	    case 8:
-	        worksheet = "September";
-	        break;
-	    case 9:
-	        worksheet = "October"; //Oktober
-	        break;
-	    case 10:
-	        worksheet = "November";
-	        break;
-	    case 11:
-	        worksheet = "December";
-	        break;
-	}
-	return worksheet;
-
+    var months = {0: "January", 1: "February", 2: "March", 3: "April", 4: "May", 5: "June", 6: "July", 7: "August", 8: "September", 9: "October", 10: "November", 11: "December"};
+    return months[month];
 }
-
 
 Planner.getWeekDayName = function(weekDay) {
-	var weekDayName = '';
-	switch (weekDay%7) {
-	    case 1:
-	        weekDayName = "Mandag";
-	        break;
-	    case 2:
-	        weekDayName = "Tirsdag";
-	        break;
-	    case 3:
-	        weekDayName = "Onsdag";
-	        break;
-	    case 4:
-	        weekDayName = "Torsdag";
-	        break;
-	    case 5:
-	        weekDayName = "Fredag";
-	        break;
-	    case 6:
-	        weekDayName = "Lørdag";
-	        break;
-	    case 0:
-	        weekDayName = "Søndag";
-	        break;
-	}
-	return weekDayName;
-
+    var weekdays = {1: "Mandag", 2: "Tirsdag", 3: "Onsdag", 4: "Torsdag", 5: "Fredag", 6: "Lørdag", 0: "Søndag"};
+    return weekdays[weekDay%7];
 }
+
 exports.getToday = Planner.Sheets.getToday;
 exports.getWeek = Planner.Sheets.getWeek;
 exports.getTodaysRecipe = Planner.Sheets.getTodaysRecipe;
