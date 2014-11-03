@@ -88,6 +88,16 @@ var server = http.createServer(function (request, response) {
         });
     } else if (parsedUrl.pathname == "/recipes") {
         Planner.Cookbook.getRecipes(session, Planner.writeJson(response));
+    } else if (parsedUrl.pathname == "/createRecipe") {
+        var chunk = '';
+        request.on('data', function (data) {
+            chunk += data;
+        });
+        request.on('end', function () {
+            Planner.Cookbook.updateRecipe(JSON.parse(chunk), Planner.writeJson(response));
+        });
+    } else if (parsedUrl.pathname == "/allRecipesDb") {
+        Planner.Cookbook.getRecipesDb(Planner.writeJson(response));
     } else {
         fs.readFile(fileroot + request.url, function(error, content) {
             if (error) {

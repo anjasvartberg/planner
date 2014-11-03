@@ -42,7 +42,6 @@
     var view = new Planner.Groceries.GroceriesView({groceries: groceries, el: el});    
     groceries.fetch();
   }
-
  
   Planner.Tasks = Simple.Model.extend({
     dataType: "json",
