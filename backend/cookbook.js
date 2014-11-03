@@ -83,7 +83,7 @@ Planner.Cookbook.getRecipes = function (session, callback) {
 }
 
 Planner.Cookbook.updateRecipe = function (data, callback) {
-	Planner.Cookbook.writeRecipe(data, function(){console.log("JA")});
+	Planner.Cookbook.writeRecipe(data, callback);
 	
 }
 

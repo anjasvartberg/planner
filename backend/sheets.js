@@ -59,7 +59,7 @@ Planner.Data.getWeekDayName = function(weekDay) {
 
 try {
 	var databaseUrl = process.env.MONGOLAB_URI || "localhost:27017/planner";
-	var collections = ["ingredients", "recipes"]
+	var collections = ["ingredients", "recipes", "calendar"]
 	var db = require("mongojs").connect(databaseUrl, collections);
 } catch (err) {
 	console.log("FAILED TO CONNECT TO DATABASE: " + err);
@@ -82,9 +82,9 @@ Planner.Data.saveData = function(type, data, callback) {
 		if (err) throw err;
 		
 		if (foundData.length == 0) {
-			db[type].save(data, Planner.Db.saveUpdateCallback);
+			db[type].save(data, Planner.Data.saveUpdateCallback);
 		} else {
-			db[type].update({_id: data._id}, data, Planner.Db.saveUpdateCallback);
+			db[type].update({_id: data._id}, data, Planner.Data.saveUpdateCallback);
 		}
 		callback({result: "success"});
 	});
