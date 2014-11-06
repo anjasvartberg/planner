@@ -90,13 +90,13 @@ Planner.Data.saveData = function(type, data, callback) {
 	});
 }
 
-Planner.Data.loadData = function(type, id, callback) {
+Planner.Data.loadData = function(type, query, callback) {
 	if (callback == undefined) {
 		console.log("ERROR: No callback defined");
 		return;
 	}
 
-	if (id == 0) {
+	if (query == 0) {
 		db[type].find(function(err, data) {
 			if (err) throw err;
 			
@@ -109,15 +109,15 @@ Planner.Data.loadData = function(type, id, callback) {
 			}
 		});	
 	} else {
-		db[type].find({_id: id}, function(err, data) {
+		db[type].find(query, function(err, data) {
 			if (err) throw err;
 			
 			if (data.length == 0) {
 				console.log("No data found");
 				callback(null)
 			} else {
-				console.log("Found data: " + data[0]);
-				callback(data[0])
+				console.log("Found data: " + data);
+				callback(data)
 			}
 		});
 	}

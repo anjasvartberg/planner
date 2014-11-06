@@ -75,7 +75,7 @@ var server = http.createServer(function (request, response) {
     } else if (parsedUrl.pathname == "/completeTask") {
         Planner.Todo.setCompletedTask(session, parsedUrl.query.task, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/calendar") {
-        Planner.Calendar.getCalendar(session, Number(parsedUrl.query.month), Planner.writeJson(response));
+        Planner.Calendar.readAllCalendarEntries(Number(parsedUrl.query.month), Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/groceries") {
         Planner.Cookbook.getGroceries(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/updateDay") {
@@ -84,7 +84,7 @@ var server = http.createServer(function (request, response) {
             chunk += data;
         });
         request.on('end', function () {
-            Planner.Calendar.updateDay(session, Number(parsedUrl.query.day), parsedUrl.query.month, querystring.parse(chunk), Planner.writeJson(response));
+            Planner.Calendar.updateDay(session, Number(parsedUrl.query.day), Number(parsedUrl.query.month), querystring.parse(chunk), Planner.writeJson(response));
         });
     } else if (parsedUrl.pathname == "/recipes") {
         Planner.Cookbook.getRecipes(session, Planner.writeJson(response));

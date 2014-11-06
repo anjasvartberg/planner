@@ -62,10 +62,10 @@ Planner.Calendar.updateDay = function (session, day, month, postData, callback) 
 	if (!isNaN(day)) {
 		updateJson[day+1] = postData;
 		
-		//Planner.Calendar.writeDay(day, month, 2014, postData, callback);
-		Planner.Data.updateSpreadsheet(session, month, updateJson, function(rows){
-			callback(updateJson);
-		});
+		Planner.Calendar.writeDay(day, month, 2014, postData, callback);
+		//Planner.Data.updateSpreadsheet(session, month, updateJson, function(rows){
+		//	callback(updateJson);
+		//});
 	} else {
 		callback("failed");
 	}
@@ -117,6 +117,18 @@ Planner.Calendar.getWeek = function (startDate, session, callback) {
 	callback(week);
 }
 
+Planner.Calendar.readAllCalendarEntries = function(month, callback) {
+	Planner.Data.loadData("calendar", 0, function(data) {
+		callback({days: data});	
+	});
+}
+
+Planner.Calendar.readAllCalendarEntries = function(month, callback) {
+	var query = {"month": month};
+	Planner.Data.loadData("calendar", query, function(data) {
+		callback({days: data});	
+	});
+}
 
 Planner.Calendar.getCalendar = function (session, month, callback) {
 	var date = new Date();
@@ -191,3 +203,4 @@ exports.getWeek = Planner.Calendar.getWeek;
 exports.getCalendar = Planner.Calendar.getCalendar;
 exports.setupMonths = Planner.Calendar.setupMonths;
 exports.updateDay = Planner.Calendar.updateDay;
+exports.readAllCalendarEntries = Planner.Calendar.readAllCalendarEntries;
