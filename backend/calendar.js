@@ -30,22 +30,51 @@ Planner.Days = function(name) {
 	} 
 }
 
-Planner.Calendar.getToday = function (session, callback) {
-	var date = new Date();
-	var day = date.getDate();
-	var month = date.getMonth();
-	var weekDay = Planner.Data.getWeekDayName(date.getDay());
-	var year = date.getFullYear();
-	var formatedDate = day + "." + (month+1) + "." + year;
+Planner.Calendar.getCalendarDay = function (date, callback) {
+	var startDate = new Date(date);
+	var dayOfMonth = startDate.getDate();
+	startDate.setDate(dayOfMonth - 1);
 	
-	var worksheetName = Planner.Data.getWorksheetName(month);
-	Planner.Data.getSpreadsheet(session, worksheetName, function(rows){
-		var columnNames = rows [1];
-		var todayData = rows[day+1];
-		var today = new Planner.Day(todayData,month,formatedDate,weekDay,columnNames);
-		callback(today);
+	var endDate = new Date(date);
+	var dayOfMonth = endDate.getDate();
+	endDate.setDate(dayOfMonth + 1);
+	
+	var query = {"_id": {$gte: startDate, $lt: endDate}};
+	
+	Planner.Data.loadData("calendar", query, function(data) {
+		callback({days: data});	
 	});
 }
+
+Planner.Calendar.readAllCalendarEntries = function(month, callback) {
+	Planner.Data.loadData("calendar", 0, function(data) {
+		callback({days: data});	
+	});
+}
+
+Planner.Calendar.getCalendarWeek = function(date, callback) {
+	var startDate = new Date(date);
+	var dayOfMonth = startDate.getDate();
+	startDate.setDate(dayOfMonth - 1);
+	
+	var endDate = new Date(date);
+	var dayOfMonth = endDate.getDate();
+	endDate.setDate(dayOfMonth + 8);
+	
+	var query = {"_id": {$gte: startDate, $lt: endDate}};
+	Planner.Data.loadData("calendar", query, function(data) {
+		callback({days: data});	
+	});
+}
+
+
+Planner.Calendar.getCalendarMonth = function(month, callback) {
+	var query = {"month": month};
+	Planner.Data.loadData("calendar", query, function(data) {
+		callback({days: data});	
+	});
+}
+
 
 Planner.Calendar.writeDay = function(day, month, year, data, callback) {
 	var date = {};
@@ -54,7 +83,6 @@ Planner.Calendar.writeDay = function(day, month, year, data, callback) {
 	date.month = month;
 	date.year = year;
 	date.data = data;
-	console.log(date);
 	Planner.Data.saveData("calendar", date, callback);
 }
 
@@ -68,7 +96,6 @@ Planner.Calendar.updateDay = function (day, month, postData, callback) {
 }
 
 Planner.Calendar.getWeek = function (startDate, session, callback) {
-	console.log(new Date());
 	var startDate = new Date(startDate);
 	var day = startDate.getDate();
 	var month = startDate.getMonth();
@@ -113,71 +140,9 @@ Planner.Calendar.getWeek = function (startDate, session, callback) {
 	callback(week);
 }
 
-Planner.Calendar.readAllCalendarEntries = function(month, callback) {
-	Planner.Data.loadData("calendar", 0, function(data) {
-		callback({days: data});	
-	});
-}
-
-Planner.Calendar.getCalendarWeek = function(date, callback) {
-	var query = {"month": month};
-	Planner.Data.loadData("calendar", query, function(data) {
-		callback({days: data});	
-	});
-}
-
-
-Planner.Calendar.getCalendarMonth = function(month, callback) {
-	var query = {"month": month};
-	Planner.Data.loadData("calendar", query, function(data) {
-		callback({days: data});	
-	});
-}
-
-Planner.Calendar.setupMonths = function (session) {
-	Planner.Calendar.Month = new Array();
-	Planner.Data.getSpreadsheet(session, "January", function(rows){
-		Planner.Calendar.Month["January"] = rows;
-	});
-	Planner.Data.getSpreadsheet(session, "February", function(rows){
-		Planner.Calendar.Month["February"] = rows;
-	});
-	Planner.Data.getSpreadsheet(session, "March", function(rows){
-		Planner.Calendar.Month["March"] = rows;
-	});
-	Planner.Data.getSpreadsheet(session, "April", function(rows){
-		Planner.Calendar.Month["April"] = rows;
-	});
-	Planner.Data.getSpreadsheet(session, "May", function(rows){
-		Planner.Calendar.Month["May"] = rows;
-	});
-	Planner.Data.getSpreadsheet(session, "June", function(rows){
-		Planner.Calendar.Month["June"] = rows;
-	});
-	Planner.Data.getSpreadsheet(session, "July", function(rows){
-		Planner.Calendar.Month["July"] = rows;
-	});
-	Planner.Data.getSpreadsheet(session, "August", function(rows){
-		Planner.Calendar.Month["August"] = rows;
-	});
-	Planner.Data.getSpreadsheet(session, "September", function(rows){
-		Planner.Calendar.Month["September"] = rows;
-	});
-	Planner.Data.getSpreadsheet(session, "October", function(rows){
-		Planner.Calendar.Month["October"] = rows;
-	});
-	Planner.Data.getSpreadsheet(session, "November", function(rows){
-		Planner.Calendar.Month["November"] = rows;
-	});
-	Planner.Data.getSpreadsheet(session, "December", function(rows){
-		Planner.Calendar.Month["December"] = rows;
-	});
-}
-
-
-exports.getToday = Planner.Calendar.getToday;
+exports.getCalendarDay = Planner.Calendar.getCalendarDay;
 exports.getWeek = Planner.Calendar.getWeek;
 exports.getCalendarMonth = Planner.Calendar.getCalendarMonth;
-exports.setupMonths = Planner.Calendar.setupMonths;
+exports.getCalendarWeek = Planner.Calendar.getCalendarWeek;
 exports.updateDay = Planner.Calendar.updateDay;
 exports.readAllCalendarEntries = Planner.Calendar.readAllCalendarEntries;

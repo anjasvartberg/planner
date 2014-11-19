@@ -60,16 +60,40 @@
     }
   }); 
 
+Planner.Recipe.RecipesViewList = Simple.View.extend({
+    template:'<select name="menu" class="form-control">' +
+        '<option></option>'+
+        '{{#recipes}}'+
+        '<option>{{name}}</option>'+
+        '{{/recipes}}'+
+      '</select>',
+    initialize: function(options) {
+      this.recipes = options.recipes;
+      this.el = options.el;
+      //this.recipes.on("fetch:finished", this.render, this); 
+    },
+    render: function() {
+      var attrs = this.recipes.attrs();
+      var html = Mustache.to_html(this.template, attrs);
+      //this.el.html(html);
+    }
+  }); 
+
+
 
 
   Planner.Recipe.RecipeView = Simple.View.extend({
     template:'<div class="panel panel-default">' +
-                '<div class="panel-heading"><h3 class="panel-title">{{name}}</h3></div>' + 
-                '<div class="panel-body">' +
-                '<div class="ingredients"><h5>Ingredienser</h5>{{{ingredients}}}</div><br />' +
-                '<div class="recipe"><h5>Oppskrift</h5>{{recipe}}</div>' +
-                '</div>' + 
-              '</div>',
+        '<div class="panel-heading" style="position:relative"><h4 class="panel-title">{{name}}</h4>' +
+          '<button type="button" class="btn btn-xs btn-primary edit" style="position:absolute;right:10px;top:10px">Endre</button>' +
+        '<button type="button" class="btn btn-xs btn-danger save" style="position:absolute;right:10px;top:10px;display:none">Lagre</button></div>' + 
+      '<div class="panel-body">' +
+      '<div><span class="label label-success">{{category}}</span><span class="label label-info">Porsjoner: {{servings}}</span></div>' +
+      '<div>Ingredienser:' +
+      '<ul>' +
+      '{{#ingredients}}<li>{{amount}}{{unit}} {{name}}</li>{{/ingredients}}</ul></div>' +
+      '<div>Beskrivelse: {{description}}</div></div>' +
+      '</div>',
     initialize: function(options) {
       this.recipe = options.recipe;
       this.recipe.on("fetch:finished", this.render, this);
@@ -77,7 +101,6 @@
     },
     render: function() {
       var recipeAttrs = this.recipe.attrs();
-      recipeAttrs.ingredients = recipeAttrs.ingredients.replace(/\|/g,'<br />');
       var html = Mustache.to_html(this.template, recipeAttrs);
       this.el.html(html);
     }

@@ -20,7 +20,10 @@ Planner.Cookbook.readAllRecipes = function(callback) {
 	Planner.Data.loadData("recipes", 0, callback);
 }
 
-
+Planner.Cookbook.readRecipe = function(name, callback) {
+	var query = {name : name};
+	Planner.Data.loadData("recipes", 0, callback);
+}
 
 
 Planner.Recipe = function(recipeData) {
@@ -54,19 +57,13 @@ Planner.Groceries = function() {
 }
 
 Planner.Cookbook.getTodaysRecipe = function (session, callback) {
-	Planner.Calendar.getToday(session, function(today) {
-		var todaysRecipeName = today["restData"][1];
-		console.log(todaysRecipeName);
-		
-		Planner.Data.getSpreadsheet(session, 'Oppskrifter', function(rows){
-			for (key in rows){
-				if (rows[key][1] == todaysRecipeName){
-					var todaysRecipe = new Planner.Recipe(rows[key]);
-					callback(todaysRecipe);
-					return;
-				}	
-			}
-		});
+	var date = new Date();
+	Planner.Calendar.getCalendarDay(date, function(today) {
+		if (today.days[0] != undefined) {
+			Planner.Cookbook.readRecipe(today.days[0].data.menu, function(days) {
+				callback(days[0]);
+			});
+		}
 	});
 
 }

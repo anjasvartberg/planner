@@ -44,13 +44,11 @@ var server = http.createServer(function (request, response) {
             if(err) throw new Error(err);
             Planner.oauth2Client.setCredentials(tokens);
             session.data.accessToken = tokens.access_token;
-            Planner.Calendar.setupMonths(session);
-            setTimeout(function() {
-                response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
-                response.setHeader('location', "/");
-                response.writeHead(302);
-                response.end();
-            }, 10000);
+            response.setHeader('Set-Cookie', session.getSetCookieHeaderValue());
+            response.setHeader('location', "/");
+            response.writeHead(302);
+            response.end();
+        
         });
         return;
     }
@@ -64,10 +62,11 @@ var server = http.createServer(function (request, response) {
     }
 
     if (parsedUrl.pathname == "/day") {
-        Planner.Calendar.getToday(session, Planner.writeJson(response));
+        var date = parsedUrl.query.date != undefined ? parsedUrl.query.date : new Date(); 
+        Planner.Calendar.getCalendarDay(date, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/week") {
         var date = parsedUrl.query.startDate != undefined ? parsedUrl.query.startDate : new Date(); 
-        Planner.Calendar.getWeek(date, session, Planner.writeJson(response));
+        Planner.Calendar.getCalendarWeek(date, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/recipe") {
         Planner.Cookbook.getTodaysRecipe(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/tasks") {

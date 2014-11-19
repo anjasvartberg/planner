@@ -5,9 +5,10 @@
   Planner.start = function() {
     var day = new Planner.Day();
     var el = $("#day");
-    var view = new Planner.Day.DayView({day: day, el: el});
+    var view = new Planner.Day.DayView({date: new Date(), day: day, el: el});
     
-    var week = new Planner.Week();
+    var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
+    var week = new Planner.Week(tomorrow);
     var el = $("#week");
     var view = new Planner.Week.WeekView({week: week, el: el});
     

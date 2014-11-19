@@ -12,8 +12,12 @@
 
   Planner.Day = Simple.Model.extend({
     dataType: "json",
-    initialize: function() {
+    initialize: function(date) {
+      if (date != undefined) {
+        this.url = "/day?date=" + date;
+      } else {
         this.url = "/day";
+      }
     }
   });
 
@@ -65,7 +69,7 @@
       this.recipes.fetch();
       this.recipes.on("fetch:finished", this.renderRecipes, this);
 
-      this.renderDay("collapse");
+      this.renderDay(options.collapse);
       this.setupListeners(this.el);
     }, 
     setupListeners: function(element){
@@ -117,7 +121,7 @@
       renderData.month = Planner.monthNames[this.day.month].toLowerCase();
       renderData.id = this.day.day;
       renderData.style = 'default';
-      if (weekDay == 5 || weekDay == 6){
+      if (weekDay == 6 || weekDay == 0){
          renderData.style = 'danger';
       }
       renderData.collapse = collapse; 
@@ -151,18 +155,32 @@
     template: "",
     initialize: function(options) {
       this.day = options.day;
-      this.day.on("fetch:finished", this.render, this);
       this.el = options.el;
-      this.dayView = new Planner.Day.SingleDayView({day: this.day, el: this.el});
-      this.dayView.setupListeners(this.el);
-      
+      this.date = options.date;
+
+      this.day.on("fetch:finished", this.render, this);
     },
     render: function() {
       var dayAttrs = this.day.attrs();
-      this.dayView.renderDay(dayAttrs, "");    
-      var html = Mustache.to_html(this.template, dayAttrs);
+
+      var date = this.date.getDate();
+      var month = this.date.getMonth();
+      var year = this.date.getFullYear();
+      
+      var dummyDay = new Planner.Calendar.DummyDay(date, month, year);
+      
+      var dayData = this.day.attrs().days;
+      if (dayData != null) {
+        dayData = dayData[0];
+        for (i in dayData.data) {
+          dummyDay.data[i] = dayData.data[i];
+        }
+      }
+
+      var html = Mustache.to_html(this.template, dummyDay);
       this.el.html(html);
-      this.dayView.hideEmptyFields();
+       
+      var dayView = new Planner.Day.SingleDayView({day: dummyDay, el: this.el});
 
     }
   });
@@ -170,25 +188,52 @@
   Planner.Week.WeekView = Simple.View.extend({
     template:'<div class="page-header"><h1>Neste uke</h1></div>' +
       '{{#days}}<div class="col-md-6">' +
-      '<div id="{{day}}"</div>' +
+      '<div id="date{{day}}"></div>' +
       '</div>{{/days}}',
     initialize: function(options) {
       this.week = options.week;
-      this.week.on("fetch:finished", this.render, this);
       this.el = options.el;
-      this.dayView = new Planner.Day.SingleDayView({day: this.week, el: this.el});
-      this.dayView.setupListeners(this.el);
-      
+
+      this.week.on("fetch:finished", this.render, this);
     },
     render: function() {
-      var weekAttrs = this.week.attrs();
-      for (day in weekAttrs.days) {
-        this.dayView.renderDay(weekAttrs.days[day], "");    
+      var date = new Date();
+      var daysInWeek = Planner.Calendar.GetDaysInWeek(date.getDate(), date.getMonth(), date.getFullYear());
+      var weekObj = {};
+      
+      weekObj.days = new Array();
+      for (index in daysInWeek) {
+        var date = daysInWeek[index].getDate();
+        var month = daysInWeek[index].getMonth();
+        var year = daysInWeek[index].getFullYear();
+        var dayObj = new Planner.Calendar.DummyDay(date, month, year);
+        weekObj.days.push(dayObj);
       }
-      var html = Mustache.to_html(this.template, weekAttrs);
-      this.el.html(html);
-      this.dayView.hideEmptyFields();
 
+      var calenderAttrs = this.week.attrs().days;
+      for (index in calenderAttrs) {
+        var dayData = calenderAttrs[index];
+        var day = dayData.day;
+        for (weekday in weekObj.days) {
+          if (weekObj.days[weekday].day == day) {
+            var dummyDay = weekObj.days[weekday];
+            for (i in dayData.data) {
+              dummyDay.data[i] = dayData.data[i];
+            }
+          }
+        }
+      }
+
+      var html = Mustache.to_html(this.template, weekObj);
+      this.el.html(html);
+     
+      for (index in weekObj.days) {
+        var day = weekObj.days[index];
+        var dayel = $("#date" + day.day);
+        
+        var dayView = new Planner.Day.SingleDayView({day: day, el: dayel});
+      }
+      
     }
   }); 
 
@@ -253,7 +298,7 @@
         var day = monthObj.days[index];
         var dayel = $("#date" + day.day);
         
-        var dayView = new Planner.Day.SingleDayView({day: day, el: dayel});
+        var dayView = new Planner.Day.SingleDayView({day: day, el: dayel, collapse: "collapse"});
       }
       
     }
@@ -279,6 +324,16 @@
        var date = new Date(year, month, 1);
        var days = [];
        while (date.getMonth() === month) {
+          days.push(new Date(date));
+          date.setDate(date.getDate() + 1);
+       }
+       return days;
+  }
+
+   Planner.Calendar.GetDaysInWeek = function(day, month, year) {
+       var date = new Date(year, month, day+1);
+       var days = [];
+       while (date.getDate() < day+8) {
           days.push(new Date(date));
           date.setDate(date.getDate() + 1);
        }

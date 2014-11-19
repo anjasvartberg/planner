@@ -77,7 +77,6 @@ Planner.Data.saveUpdateCallback = function(err, saved) {
 }
 	
 Planner.Data.saveData = function(type, data, callback) {
-	console.log("saving data: " + data);
 	db[type].find({_id: data._id}, function(err, foundData) {
 		if (err) throw err;
 		
