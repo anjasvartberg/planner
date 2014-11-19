@@ -85,8 +85,6 @@ var server = http.createServer(function (request, response) {
         request.on('end', function () {
             Planner.Calendar.updateDay(Number(parsedUrl.query.day), Number(parsedUrl.query.month), querystring.parse(chunk), Planner.writeJson(response));
         });
-    } else if (parsedUrl.pathname == "/recipes") {
-        Planner.Cookbook.getRecipes(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/createRecipe") {
         var chunk = '';
         request.on('data', function (data) {

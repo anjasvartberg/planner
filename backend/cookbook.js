@@ -31,7 +31,6 @@ Planner.Cookbook.getTodaysRecipe = function (session, callback) {
 			});
 		}
 	});
-
 }
 
 Planner.Cookbook.updateRecipe = function (data, callback) {
