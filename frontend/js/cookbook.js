@@ -20,13 +20,6 @@
     }
   });
 
- Planner.Recipes = Simple.Model.extend({
-    dataType: "json",
-    initialize: function() {
-        this.url = "/recipes"; 
-    }
-  });
-
   Planner.RecipesDb = Simple.Model.extend({
     dataType: "json",
     initialize: function() {
@@ -59,26 +52,6 @@
       this.el.html(html);
     }
   }); 
-
-Planner.Recipe.RecipesViewList = Simple.View.extend({
-    template:'<select name="menu" class="form-control">' +
-        '<option></option>'+
-        '{{#recipes}}'+
-        '<option>{{name}}</option>'+
-        '{{/recipes}}'+
-      '</select>',
-    initialize: function(options) {
-      this.recipes = options.recipes;
-      this.el = options.el;
-      //this.recipes.on("fetch:finished", this.render, this); 
-    },
-    render: function() {
-      var attrs = this.recipes.attrs();
-      var html = Mustache.to_html(this.template, attrs);
-      //this.el.html(html);
-    }
-  }); 
-
 
 
 
@@ -147,7 +120,7 @@ Planner.Recipe.RecipesViewList = Simple.View.extend({
           '</div>' +
         '</div>',
     templateIngredients: '<div class="form-inline ingredients">' +
-          '<div class="form-group"><input type="number" class="form-control amount" name="ingredients-amount" placeholder="Mengde"></div>' +
+          '<div class="form-group"><input type="number" step="any" min="0" class="form-control amount" name="ingredients-amount" placeholder="Mengde"></div>' +
           '<div class="form-group">' +
             '<select class="form-control unit" name="ingredients-unit">' +
               '<option>g</option>' +

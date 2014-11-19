@@ -4,7 +4,7 @@
 
   Planner.startCalendar = function() {
     var calendar = new Planner.Calendar();
-    var recipes = new Planner.Recipes();
+    var recipes = new Planner.RecipesDb();
     var el = $("#calendar");
     var view = new Planner.Calendar.CalendarView({calendar: calendar, recipes: recipes, el: el});     
     recipes.fetch();
@@ -65,7 +65,7 @@
     initialize: function(options) {
       this.day = options.day;
       this.el = options.el;
-      this.recipes = new Planner.Recipes();
+      this.recipes = new Planner.RecipesDb();
       this.recipes.fetch();
       this.recipes.on("fetch:finished", this.renderRecipes, this);
 
