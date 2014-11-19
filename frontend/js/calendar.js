@@ -2,6 +2,14 @@
 
   window.Planner = window.Planner || {};
 
+  Planner.startCalendar = function() {
+    var calendar = new Planner.Calendar();
+    var recipes = new Planner.Recipes();
+    var el = $("#calendar");
+    var view = new Planner.Calendar.CalendarView({calendar: calendar, recipes: recipes, el: el});     
+    recipes.fetch();
+  }
+
   Planner.Day = Simple.Model.extend({
     dataType: "json",
     initialize: function() {
@@ -31,16 +39,6 @@
   });
 
   Planner.Day.SingleDayView = Simple.Model.extend({
-    initialize: function(options) {
-      this.day = options.day;
-      this.el = options.el;
-      this.recipes = new Planner.Recipes();
-      this.recipes.fetch();
-      this.recipes.on("fetch:finished", this.renderRecipes, this);
-
-      this.renderDay("collapse");
-      this.setupListeners(this.el);
-    }, 
     template: '<div class="panel panel-{{style}}" id="{{id}}">' +
         '<div class="panel-heading" style="position:relative"><h4 class="panel-title">' + 
         '<a data-toggle="collapse" data-target="#collapse{{id}}">' +
@@ -60,6 +58,16 @@
         '<option>{{name}}</option>'+
         '{{/recipes}}'+
       '</select>',
+    initialize: function(options) {
+      this.day = options.day;
+      this.el = options.el;
+      this.recipes = new Planner.Recipes();
+      this.recipes.fetch();
+      this.recipes.on("fetch:finished", this.renderRecipes, this);
+
+      this.renderDay("collapse");
+      this.setupListeners(this.el);
+    }, 
     setupListeners: function(element){
       var that = this;
       element.on("click", "button.edit", function(event) {
@@ -104,14 +112,12 @@
     renderDay: function (collapse) {
       this.date = new Date(this.day.year, this.day.month, this.day.day);
       var weekDay = this.date.getDay();
-      console.log(this.date);
-      console.log(this.date);
-
+      
       var renderData = this.day;
       renderData.month = Planner.monthNames[this.day.month].toLowerCase();
       renderData.id = this.day.day;
       renderData.style = 'default';
-      if (weekDay == 6 || weekDay == 7){
+      if (weekDay == 5 || weekDay == 6){
          renderData.style = 'danger';
       }
       renderData.collapse = collapse; 
@@ -121,15 +127,16 @@
       } 
       var html = Mustache.to_html(this.template, renderData);
       this.el.html(html);
+      this.hideEmptyFields();    
        
     },
     renderRecipes: function(element) {
         var recipesAttrs = this.recipes.attrs();  
         var html = Mustache.to_html(this.templateDropdown, recipesAttrs);
-        this.recipesHtml = html;    
+        this.recipesHtml = html;
     },
     hideEmptyFields: function() {
-      var editableFields = $(".panel").find(".editable");
+      var editableFields = $(this.el).find(".editable");
       editableFields.each(function(index, field){
         var text = $(field).html();
         if (text == "null" || text == "") {
@@ -218,10 +225,9 @@
     render: function() {
       var month = this.month;
       var year = this.year;
-      console.log(month);
       var daysInMonth = Planner.Calendar.GetDaysInMonth(Number(month), year);
       var monthObj = {};
-      console.log(daysInMonth);
+      
       monthObj.name = Planner.monthNames[this.month];
       monthObj.days = new Array();
       for (index in daysInMonth) {
@@ -231,14 +237,12 @@
       }
 
       var calenderAttrs = this.calendar.attrs().days;
-      if (calenderAttrs.length > 1) {
-        for (index in calenderAttrs) {
-          var dayData = calenderAttrs[index];
-          var day = dayData.day;
-          var dummyDay = monthObj.days[day-1];
-          for (i in dayData.data) {
-            dummyDay.data[i] = dayData.data[i];
-          }
+      for (index in calenderAttrs) {
+        var dayData = calenderAttrs[index];
+        var day = dayData.day;
+        var dummyDay = monthObj.days[day-1];
+        for (i in dayData.data) {
+          dummyDay.data[i] = dayData.data[i];
         }
       }
 
@@ -259,6 +263,7 @@
     this.day = day;
     this.month = month;
     this.year = year;
+    this.date = new Date(year, month, day);
     this.data = new Array();
     this.data.plans = "";
     this.data.menu = "";
@@ -267,14 +272,12 @@
     this.data.person2 = "";
     this.data.dinner = "";
     this.data.ideas = "";
+     
   }
 
   Planner.Calendar.GetDaysInMonth = function(month, year) {
        var date = new Date(year, month, 1);
        var days = [];
-       console.log(date.getMonth() === month);
-       console.log(month);
-       console.log(date.getMonth());
        while (date.getMonth() === month) {
           days.push(new Date(date));
           date.setDate(date.getDate() + 1);

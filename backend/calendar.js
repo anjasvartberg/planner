@@ -49,6 +49,7 @@ Planner.Calendar.getToday = function (session, callback) {
 
 Planner.Calendar.writeDay = function(day, month, year, data, callback) {
 	var date = {};
+	date._id = new Date(year, month, day);
 	date.day = day;
 	date.month = month;
 	date.year = year;
@@ -57,15 +58,10 @@ Planner.Calendar.writeDay = function(day, month, year, data, callback) {
 	Planner.Data.saveData("calendar", date, callback);
 }
 
-Planner.Calendar.updateDay = function (session, day, month, postData, callback) {
+Planner.Calendar.updateDay = function (day, month, postData, callback) {
 	var updateJson = {};
 	if (!isNaN(day)) {
-		updateJson[day+1] = postData;
-		
 		Planner.Calendar.writeDay(day, month, 2014, postData, callback);
-		//Planner.Data.updateSpreadsheet(session, month, updateJson, function(rows){
-		//	callback(updateJson);
-		//});
 	} else {
 		callback("failed");
 	}
@@ -123,37 +119,18 @@ Planner.Calendar.readAllCalendarEntries = function(month, callback) {
 	});
 }
 
-Planner.Calendar.readAllCalendarEntries = function(month, callback) {
+Planner.Calendar.getCalendarWeek = function(date, callback) {
 	var query = {"month": month};
 	Planner.Data.loadData("calendar", query, function(data) {
 		callback({days: data});	
 	});
 }
 
-Planner.Calendar.getCalendar = function (session, month, callback) {
-	var date = new Date();
-	var year = date.getFullYear();
 
-	var worksheetName = Planner.Data.getWorksheetName(month);
-	
-	var monthData = new Planner.Days(worksheetName);
-
-	Planner.Data.getSpreadsheet(session, worksheetName, function(rows){
-		var columnNames = new Array();
-		for (row in rows[1]) {
-			columnNames.push(rows[1][row]);
-		}
-
-		monthData.columnNames = columnNames;
-		
-		for (var i = 2; i <= Object.keys(rows).length; i++) {
-			var dayDate = new Date(year, month, rows[i][1]);
-			var formatedDate = rows[i][1] + "." + (month+1) + "." + year;
-			var weekDay = Planner.Data.getWeekDayName((dayDate.getDay()));
-			var dayData = rows[i];
-			monthData.push(new Planner.Day(dayData, month, formatedDate, weekDay, rows[1]));		
-		}
-		callback(monthData);	
+Planner.Calendar.getCalendarMonth = function(month, callback) {
+	var query = {"month": month};
+	Planner.Data.loadData("calendar", query, function(data) {
+		callback({days: data});	
 	});
 }
 
@@ -200,7 +177,7 @@ Planner.Calendar.setupMonths = function (session) {
 
 exports.getToday = Planner.Calendar.getToday;
 exports.getWeek = Planner.Calendar.getWeek;
-exports.getCalendar = Planner.Calendar.getCalendar;
+exports.getCalendarMonth = Planner.Calendar.getCalendarMonth;
 exports.setupMonths = Planner.Calendar.setupMonths;
 exports.updateDay = Planner.Calendar.updateDay;
 exports.readAllCalendarEntries = Planner.Calendar.readAllCalendarEntries;

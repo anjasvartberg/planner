@@ -27,15 +27,6 @@
     
   }
 
-  Planner.startCalendar = function() {
-    var calendar = new Planner.Calendar();
-    var recipes = new Planner.Recipes();
-    var el = $("#calendar");
-    var view = new Planner.Calendar.CalendarView({calendar: calendar,recipes: recipes, el: el});    
-  
-    recipes.fetch();
-  }
-
   Planner.startGroceries = function() {
     var groceries = new Planner.Groceries();
     var el = $("#groceries");
