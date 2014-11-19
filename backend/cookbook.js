@@ -59,7 +59,7 @@ Planner.Groceries = function() {
 Planner.Cookbook.getTodaysRecipe = function (session, callback) {
 	var date = new Date();
 	Planner.Calendar.getCalendarDay(date, function(today) {
-		if (today.days[0] != undefined) {
+		if (today.days != null && today.days[0] != undefined) {
 			Planner.Cookbook.readRecipe(today.days[0].data.menu, function(days) {
 				callback(days[0]);
 			});
