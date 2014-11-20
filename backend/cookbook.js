@@ -17,7 +17,7 @@ Planner.Cookbook.readAllRecipes = function(callback) {
 
 Planner.Cookbook.readRecipe = function(name, callback) {
 	var query = {name : name};
-	Planner.Data.loadData("recipes", 0, callback);
+	Planner.Data.loadData("recipes", query, callback);
 }
 
 
@@ -26,9 +26,9 @@ Planner.Cookbook.getTodaysRecipe = function (callback) {
 	var date = new Date();
 	Planner.Calendar.getCalendarDay(date, function(today) {
 		if (today.days != null && today.days[0] != undefined) {
-			Planner.Cookbook.readRecipe(today.days[0].data.menu, function(days) {
-                if (days != null) {
-                    callback(days[0]);
+			Planner.Cookbook.readRecipe(today.days[0].data.menu, function(recipe) {
+                if (recipe != null) {
+                	callback(recipe[0]);
                 }
 			});
 		}

@@ -106,9 +106,15 @@
       '{{#ingredients}}<li>{{amount}}{{unit}} {{name}}</li>{{/ingredients}}</ul></div>' +
       '<div>Beskrivelse: {{description}}</div></div>' +
       '</div>',
-    initialize: function(options) {
+     initialize: function(options) {
+      this.recipe = options.recipe;
+      this.recipe.on("fetch:finished", this.render, this);
+      this.el = options.el;
     },
     render: function() {
+      var recipeAttrs = this.recipe.attrs();
+      var html = Mustache.to_html(this.templateShow, recipeAttrs);
+      this.el.html(html);
     }
   }); 
 
