@@ -27,7 +27,9 @@ Planner.Cookbook.getTodaysRecipe = function (callback) {
 	Planner.Calendar.getCalendarDay(date, function(today) {
 		if (today.days != null && today.days[0] != undefined) {
 			Planner.Cookbook.readRecipe(today.days[0].data.menu, function(days) {
-				callback(days[0]);
+                if (days != null) {
+                    callback(days[0]);
+                }
 			});
 		}
 	});
