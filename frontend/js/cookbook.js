@@ -56,7 +56,46 @@
 
 
   Planner.Recipe.RecipeView = Simple.View.extend({
-    template:'<div class="panel panel-default">' +
+    templateCreate:'<div class="panel panel-default">' +
+          '<div class="panel-heading">Lag ny oppskrift</div>' +
+          '<div class="panel-body">' +
+            '<form role="form">' +
+            '<div class="form-group">' +
+              '<label for="name">Oppskriftens navn</label>' +
+              '<input type="text" class="form-control" id="name" name="name">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label for="category">Kategori</label>' +
+              '<select class="form-control" id="category" name="category">' +
+              '<option>Fisk</option>' +
+              '<option>Rødt kjøtt</option>' +
+              '<option>Hvitt kjøtt</option>' +
+              '<option>Vegetar</option>' +
+            '</select>' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label for="description">Merkelapper</label>' +
+              '<input type="text" class="form-control" id="tags" name="tags" data-role="tagsinput">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label for="description">Antall posjoner</label>' +
+              '<input type="number" class="form-control" id="servings" name="servings">' +
+            '</div>' +
+            '<div class="form-group">' +
+              '<label for="ingredients">Ingredienser</label>' +
+                  '<div class="ingredients-list"></div>'+
+                 '<div class="form-group">'+
+                  '<input id="add-row" type="button" value="Legg til ingrediens" class="btn btn-default"/>' +
+                '</div>' +
+            '<div class="form-group">' +
+              '<label for="description">Fremgangsmåte</label>' +
+              '<textarea rows="8" class="form-control" id="description" name="description"></textarea>' +
+            '</div>' +
+            '<button type="submit" class="btn btn-default">Send inn</button>' +
+          '</form>' +
+          '</div>' +
+        '</div>',
+    templateShow: '<div class="panel panel-default">' +
         '<div class="panel-heading" style="position:relative"><h4 class="panel-title">{{name}}</h4>' +
           '<button type="button" class="btn btn-xs btn-primary edit" style="position:absolute;right:10px;top:10px">Endre</button>' +
         '<button type="button" class="btn btn-xs btn-danger save" style="position:absolute;right:10px;top:10px;display:none">Lagre</button></div>' + 
@@ -68,14 +107,8 @@
       '<div>Beskrivelse: {{description}}</div></div>' +
       '</div>',
     initialize: function(options) {
-      this.recipe = options.recipe;
-      this.recipe.on("fetch:finished", this.render, this);
-      this.el = options.el;
     },
     render: function() {
-      var recipeAttrs = this.recipe.attrs();
-      var html = Mustache.to_html(this.template, recipeAttrs);
-      this.el.html(html);
     }
   }); 
 

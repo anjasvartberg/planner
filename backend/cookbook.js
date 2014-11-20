@@ -22,7 +22,7 @@ Planner.Cookbook.readRecipe = function(name, callback) {
 
 
 
-Planner.Cookbook.getTodaysRecipe = function (session, callback) {
+Planner.Cookbook.getTodaysRecipe = function (callback) {
 	var date = new Date();
 	Planner.Calendar.getCalendarDay(date, function(today) {
 		if (today.days != null && today.days[0] != undefined) {

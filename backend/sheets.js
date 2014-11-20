@@ -50,11 +50,6 @@ Planner.Data.getWorksheetName = function(month) {
     return months[month];
 }
 
-Planner.Data.getWeekDayName = function(weekDay) {
-    var weekdays = {1: "Mandag", 2: "Tirsdag", 3: "Onsdag", 4: "Torsdag", 5: "Fredag", 6: "Lørdag", 0: "Søndag"};
-    return weekdays[weekDay%7];
-}
-
 //Database
 
 try {
@@ -127,7 +122,6 @@ Planner.Data.loadData = function(type, query, callback) {
 exports.getSpreadsheet = Planner.Data.getSpreadsheet;
 exports.updateSpreadsheet = Planner.Data.updateSpreadsheet;
 exports.getWorksheetName = Planner.Data.getWorksheetName;
-exports.getWeekDayName = Planner.Data.getWeekDayName;
 
 exports.saveData = Planner.Data.saveData;
 exports.loadData = Planner.Data.loadData;
