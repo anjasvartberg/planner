@@ -39,7 +39,7 @@
       '<div>Ingredienser:' +
       '<ul>' +
       '{{#ingredients}}<li>{{amount}}{{unit}} {{name}}</li>{{/ingredients}}</ul></div>' +
-      '<div>Beskrivelse: {{description}}</div></div>' +
+      '<div class="recipe-description">Beskrivelse: {{description}}</div></div>' +
       '</div></div>{{/recipes}}',
     initialize: function(options) {
       this.recipes = options.recipes;
@@ -104,7 +104,7 @@
       '<div>Ingredienser:' +
       '<ul>' +
       '{{#ingredients}}<li>{{amount}}{{unit}} {{name}}</li>{{/ingredients}}</ul></div>' +
-      '<div>Beskrivelse: {{description}}</div></div>' +
+      '<div class="recipe-description">Beskrivelse: {{description}}</div></div>' +
       '</div>',
      initialize: function(options) {
       this.recipe = options.recipe;
