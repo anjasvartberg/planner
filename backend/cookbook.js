@@ -8,7 +8,9 @@ Planner.Cookbook.writeIngredient = function( data, callback) {
 }
 
 Planner.Cookbook.writeRecipe = function(data, callback) {
-	Planner.Data.saveData("recipes", data, callback);
+	var recipe = data;
+	recipe._id = data.name;
+	Planner.Data.saveData("recipes", recipe, callback);
 }
 
 Planner.Cookbook.readAllRecipes = function(callback) {

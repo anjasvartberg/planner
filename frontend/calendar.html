@@ -13,11 +13,10 @@
 		<script type="text/javascript" src="lib/bootstrap-3.2.0-dist/js/bootstrap.js"></script>
 		<script type="text/javascript" src="js/cookbook.js"></script>
 	    <script type="text/javascript" src="js/calendar.js"></script>
-	    <script type="text/javascript" src="js/tasks.js"></script>
 	    <script type="text/javascript" src="js/app.js"></script>
 	    <script type="text/javascript">
 	      jQuery(function() {
-	        Planner.start();
+	        Planner.startCalendar();
 	      });
 	    </script>
 
@@ -40,24 +39,34 @@
 			    <!-- Collect the nav links, forms, and other content for toggling -->
 			    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 			      <ul class="nav navbar-nav">
-			        <li class="active"><a href="/">I dag</a></li>
-			        <li><a href="calendar.html">Kalender</a></li>
+			        <li><a href="/">I dag</a></li>
+			        <li class="active"><a href="#">Kalender</a></li>
 			        <li><a href="groceries.html">Handleliste</a></li>
-			        <li><a href="cookbook.html">Kokebok</a></li>
-			        <li><a href="tasks.html">Oppgaver</a></li>
+			        <li><a href="#">Oppgaver</a></li>
 			      </ul>
 			    </div><!-- /.navbar-collapse -->
 			  </div><!-- /.container-fluid -->
 			</div>
 		</nav>
 		<div class="container">
-			<div class="col-md-6">
-				<div id="day"></div>
-				<div id="tasks"></div>
+
+
+			<div class="btn-group btn-group-justified months">
+	        	<a class="btn btn-default" role="button" id="0">Januar</a>	
+				<a class="btn btn-default" role="button" id="1">Februar</a>	
+				<a class="btn btn-default" role="button" id="2">Mars</a>	
+				<a class="btn btn-default" role="button" id="3">April</a>	
+    			<a class="btn btn-default" role="button" id="4">Mai</a>	
+				<a class="btn btn-default" role="button" id="5">Juni</a>	
+				<a class="btn btn-default" role="button" id="6">Juli</a>	
+    			<a class="btn btn-default" role="button" id="7">August</a>	
+				<a class="btn btn-default" role="button" id="8">September</a>	
+    			<a class="btn btn-default" role="button" id="9">Oktober</a>	
+				<a class="btn btn-default" role="button" id="10">November</a>	
+				<a class="btn btn-default" role="button" id="11">Desember</a>	
+    
 			</div>
-			<div class="col-md-6" id="recipe"></div>
-			<div class="clearfix"></div>
-			<div id="week"></div>
+			<div id="calendar"></div>
 		</div>
 	</body>
 </html>

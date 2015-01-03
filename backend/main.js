@@ -10,7 +10,6 @@ var url = require("url");
 var google = require('googleapis');
 var querystring = require("querystring");
 
-Planner.Sheets = require(process.cwd() + '/backend/sheets.js');
 Planner.Calendar = require(process.cwd() + '/backend/calendar.js');
 Planner.Todo = require(process.cwd() + '/backend/tasks.js');
 Planner.Cookbook = require(process.cwd() + '/backend/cookbook.js');
@@ -71,12 +70,10 @@ var server = http.createServer(function (request, response) {
         Planner.Calendar.getCalendarMonth(Number(parsedUrl.query.month), Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/recipe") {
         Planner.Cookbook.getTodaysRecipe(Planner.writeJson(response));
-    } else if (parsedUrl.pathname == "/groceries") {
-        Planner.Cookbook.getGroceries(session, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/tasks") {
-        Planner.Todo.getPlannedTasks(session, Planner.writeJson(response));
+        Planner.Todo.readAllTaskEntries(Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/completeTask") {
-        Planner.Todo.setCompletedTask(session, parsedUrl.query.task, Planner.writeJson(response));
+        Planner.Todo.updateTaskDone(parsedUrl.query.task, parsedUrl.query.done, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/updateDay") {
         var chunk = '';
         request.on('data', function (data) {

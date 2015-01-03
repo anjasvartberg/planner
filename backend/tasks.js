@@ -1,53 +1,30 @@
 var Planner = {};
 Planner.Todo = {};
 
-var Spreadsheet = require('edit-google-spreadsheet');
-Planner.Sheets = require(process.cwd() + '/backend/sheets.js');
+var ObjectId = require('mongodb').ObjectID;
+Planner.Data = require(process.cwd() + '/backend/sheets.js');
 
-var sessions = require(process.cwd() + '/backend/lib/session.js');
+/*
+Planner.Todo.writeTask = function(id, description, priority, responsible, recurrence, callback) {
+	var task = {};
+	task._id = id;
 
+	Planner.Data.saveData("tasks", task, callback);
+}
+*/
 
-Planner.Task = function(id, taskData) {
-	this.id = id;
-	this.name = taskData[1];
-	this.date = taskData[2];
-	this.who = taskData[3];
-	this.done = taskData[4] ? "checked" : "";
+Planner.Todo.updateTaskDone = function (id, done, callback) {
+	var task = {};
+	task._id = new ObjectId(id);
+	task.done = done;
+	Planner.Data.saveData("tasks", task, callback);
 }
 
-Planner.Tasks = function() {
-	this.tasks = new Array();
-	this.length = 0;
-	this.push = function(task) {
-		this.tasks.push(task);
-		this.length += 1;
-	} 
-}
-
-Planner.Todo.getPlannedTasks = function (session, callback) {
-	Planner.Sheets.getSpreadsheet(session, 'Planned tasks', function(rows){
-		var tasks = new Planner.Tasks();
-		for (key in rows){
-			tasks.push(new Planner.Task(key, rows[key]));
-		}
-		callback(tasks);
+Planner.Todo.readAllTaskEntries = function(callback) {
+	Planner.Data.loadData("tasks", 0, function(data) {
+		callback({tasks: data});	
 	});
-
 }
 
-Planner.Todo.setCompletedTask = function (session, task, callback) {
-	var updateJson = {};
-	if (!isNaN(task)) {
-		updateJson[task] = { 4: 'x' };
-		
-		Planner.Sheets.updateSpreadsheet(session, 'Planned tasks', updateJson, function(rows){
-			callback(updateJson);
-		});
-	} else {
-		callback("failed");
-	}
-}
-
-
-exports.getPlannedTasks = Planner.Todo.getPlannedTasks;
-exports.setCompletedTask = Planner.Todo.setCompletedTask;
+exports.readAllTaskEntries = Planner.Todo.readAllTaskEntries;
+exports.updateTaskDone = Planner.Todo.updateTaskDone;

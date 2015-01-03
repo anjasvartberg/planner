@@ -54,7 +54,7 @@ Planner.Data.getWorksheetName = function(month) {
 
 try {
 	var databaseUrl = process.env.MONGOLAB_URI || "localhost:27017/planner";
-	var collections = ["ingredients", "recipes", "calendar"]
+	var collections = ["ingredients", "recipes", "calendar", "tasks"]
 	var db = require("mongojs").connect(databaseUrl, collections);
 } catch (err) {
 	console.log("FAILED TO CONNECT TO DATABASE: " + err);
@@ -78,7 +78,7 @@ Planner.Data.saveData = function(type, data, callback) {
 		if (foundData.length == 0) {
 			db[type].save(data, Planner.Data.saveUpdateCallback);
 		} else {
-			db[type].update({_id: data._id}, data, Planner.Data.saveUpdateCallback);
+			db[type].update({_id: data._id}, {$set: data}, Planner.Data.saveUpdateCallback);
 		}
 		callback({result: "success"});
 	});
@@ -119,9 +119,9 @@ Planner.Data.loadData = function(type, query, callback) {
 }
 
 
-exports.getSpreadsheet = Planner.Data.getSpreadsheet;
+/*exports.getSpreadsheet = Planner.Data.getSpreadsheet;
 exports.updateSpreadsheet = Planner.Data.updateSpreadsheet;
 exports.getWorksheetName = Planner.Data.getWorksheetName;
-
+*/
 exports.saveData = Planner.Data.saveData;
 exports.loadData = Planner.Data.loadData;

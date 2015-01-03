@@ -15,7 +15,7 @@ Planner.Calendar.writeDay = function(day, month, year, data, callback) {
 Planner.Calendar.updateDay = function (day, month, postData, callback) {
 	var updateJson = {};
 	if (!isNaN(day)) {
-		Planner.Calendar.writeDay(day, month, 2014, postData, callback);
+		Planner.Calendar.writeDay(day, month, 2015, postData, callback);
 	} else {
 		callback("failed");
 	}
