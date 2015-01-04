@@ -4,19 +4,28 @@ Planner.Todo = {};
 var ObjectId = require('mongodb').ObjectID;
 Planner.Data = require(process.cwd() + '/backend/sheets.js');
 
-/*
-Planner.Todo.writeTask = function(id, description, priority, responsible, recurrence, callback) {
-	var task = {};
-	task._id = id;
 
+Planner.Todo.saveTask = function(description, responsible, recurrence, callback) {
+	var task = {};
+	task.description = description;
+	task.responsible = responsible;
+	task.recurrence = recurrence;
+	task.priority = 0;
 	Planner.Data.saveData("tasks", task, callback);
 }
-*/
+
 
 Planner.Todo.updateTaskDone = function (id, done, callback) {
 	var task = {};
 	task._id = new ObjectId(id);
 	task.done = done;
+	Planner.Data.saveData("tasks", task, callback);
+}
+
+Planner.Todo.prioritizeTask = function (id, priority, callback) {
+	var task = {};
+	task._id = new ObjectId(id);
+	task.priority = priority;
 	Planner.Data.saveData("tasks", task, callback);
 }
 
@@ -53,3 +62,5 @@ exports.readAllTaskEntries = Planner.Todo.readAllTaskEntries;
 exports.readTaskEntries = Planner.Todo.readTaskEntries;
 exports.updateTaskDone = Planner.Todo.updateTaskDone;
 exports.readRecurringTaskEntries = Planner.Todo.readRecurringTaskEntries;
+exports.saveTask = Planner.Todo.saveTask;
+exports.prioritizeTask = Planner.Todo.prioritizeTask;

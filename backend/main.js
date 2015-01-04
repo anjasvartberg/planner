@@ -78,7 +78,12 @@ var server = http.createServer(function (request, response) {
         } 
     } else if (parsedUrl.pathname == "/completeTask") {
         Planner.Todo.updateTaskDone(parsedUrl.query.task, parsedUrl.query.done, Planner.writeJson(response));
-    } else if (parsedUrl.pathname == "/updateDay") {
+    } else if (parsedUrl.pathname == "/saveTask") {
+        Planner.Todo.saveTask(parsedUrl.query.description, parsedUrl.query.responsible, parsedUrl.query.recurrence, Planner.writeJson(response));
+    } else if (parsedUrl.pathname == "/prioritizeTask") {
+        Planner.Todo.prioritizeTask(parsedUrl.query.task, Number(parsedUrl.query.priority), Planner.writeJson(response));
+    } 
+    else if (parsedUrl.pathname == "/updateDay") {
         var chunk = '';
         request.on('data', function (data) {
             chunk += data;
