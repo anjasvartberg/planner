@@ -16,16 +16,14 @@
     var el = $("#recipe");
     var view = new Planner.Recipe.RecipeView({recipe: todaysRecipe, el: el});
     
-    var plannedTasks = new Planner.Tasks();
+    var plannedTasks = new Planner.Tasks({priority: 1});
     var el = $("#tasks");
-    var view = new Planner.Tasks.TasksView({tasks: plannedTasks, el: el});
+    var view = new Planner.Tasks.TasksView({tasks: plannedTasks, el: el, panelTitle: "Prioriterte oppgaver"});
 
     day.fetch();
     week.fetch();
     todaysRecipe.fetch();
-    plannedTasks.fetch();
-    
-    
+    plannedTasks.fetch(); 
   }
 
 

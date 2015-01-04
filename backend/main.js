@@ -71,7 +71,11 @@ var server = http.createServer(function (request, response) {
     } else if (parsedUrl.pathname == "/recipe") {
         Planner.Cookbook.getTodaysRecipe(Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/tasks") {
-        Planner.Todo.readAllTaskEntries(Planner.writeJson(response));
+        if (parsedUrl.query.priority != undefined) {
+            Planner.Todo.readTaskEntries(Number(parsedUrl.query.priority), Planner.writeJson(response));
+        } else if (parsedUrl.query.recurrence != undefined) {
+            Planner.Todo.readRecurringTaskEntries(parsedUrl.query.recurrence, Planner.writeJson(response));
+        } 
     } else if (parsedUrl.pathname == "/completeTask") {
         Planner.Todo.updateTaskDone(parsedUrl.query.task, parsedUrl.query.done, Planner.writeJson(response));
     } else if (parsedUrl.pathname == "/updateDay") {
