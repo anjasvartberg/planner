@@ -46,7 +46,7 @@
     template: '<div class="panel panel-{{style}}" id="{{id}}">' +
         '<div class="panel-heading" style="position:relative"><h4 class="panel-title">' + 
         '<a data-toggle="collapse" data-target="#collapse{{id}}">' +
-        '{{weekDay}} {{day}}. {{month}} {{year}}: {{data.plans}}</a></h4>' + 
+        '{{weekDay}} {{day}}. {{month}} {{year}} - {{data.plans}} - {{data.person1}} - {{data.person2}}</a></h4>' + 
         '<button type="button" class="btn btn-xs btn-primary edit" style="position:absolute;right:10px;top:10px">Endre</button>' +
         '<button type="button" class="btn btn-xs btn-danger save" style="position:absolute;right:10px;top:10px;display:none">Lagre</button></div>' +
       '<div id="collapse{{id}}" class="panel-collapse {{collapse}}">' +
