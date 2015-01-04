@@ -4,12 +4,14 @@
   window.Planner = window.Planner || {};
 
   Planner.startCookbook = function() {
-    var el = $("#createNewRecipe");
-    var view = new Planner.Recipe.CreateRecipeView({el: el});    
-  
     var recipesDb = new Planner.RecipesDb();
+
+    var el = $("#createNewRecipe");
+    var view = new Planner.Recipe.CreateRecipeView({el: el, recipesDb: recipesDb});
+    
     var el = $("#recipes");
     var view = new Planner.Recipe.RecipesViewDb({recipes: recipesDb, el: el});   
+
     recipesDb.fetch(); 
   }
 
@@ -248,6 +250,7 @@
       '</div>',
     initialize: function(options) {
       this.el = options.el;
+      this.recipesDb = options.recipesDb;
       var html = this.template;
       this.el.html(html);
       this.setupListeners();
@@ -275,7 +278,9 @@
            "/createRecipe",
            JSON.stringify(formData),
            function(data) {
-              console.log("ja");       
+              console.log("ja");
+              that.el.find("form")[0].reset();
+              that.recipesDb.fetch();
             }
         ); 
       });
