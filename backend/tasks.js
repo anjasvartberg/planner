@@ -38,10 +38,11 @@ Planner.Todo.readAllTaskEntries = function(callback) {
 
 Planner.Todo.readTaskEntries = function(priority, callback) {
 	var query = 0;
-	if (priority != undefined) {
+	if (priority ==0) { 
+		query = {"priority": priority, recurrence: ""};
+	} else if (priority != undefined) {
 		query = {"priority": priority};
 	}
-	console.log(query);
 	Planner.Data.loadData("tasks", query, function(data) {
 		callback({tasks: data});	
 	});

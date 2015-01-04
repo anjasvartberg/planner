@@ -16,13 +16,22 @@
     var el = $("#weekly");
     var view = new Planner.Tasks.TasksView({tasks: weekly, el: el, panelTitle: "Ukentlige oppgaver"});
 
-    var biweekly = new Planner.Tasks({recurrence: "bi-weekly"});
-    var el = $("#biweekly");
-    var view = new Planner.Tasks.TasksView({tasks: biweekly, el: el, panelTitle: "Ukentlige oppgaver, annenhver uke"});
+    var biweeklyodd = new Planner.Tasks({recurrence: "bi-weekly-odd"});
+    var el = $("#biweeklyodd");
+    var view = new Planner.Tasks.TasksView({tasks: biweeklyodd, el: el, panelTitle: "Ukentlige oppgaver, annenhver uke oddetallsuker"});
 
+    var biweeklyeven = new Planner.Tasks({recurrence: "bi-weekly-even"});
+    var el = $("#biweeklyeven");
+    var view = new Planner.Tasks.TasksView({tasks: biweeklyeven, el: el, panelTitle: "Ukentlige oppgaver, annenhver uke partallsuker"});
+    
     var monthly = new Planner.Tasks({recurrence: "monthly"});
     var el = $("#monthly");
     var view = new Planner.Tasks.TasksView({tasks: monthly, el: el, panelTitle: "Månedlige oppgaver"});
+
+    var january = new Planner.Tasks({recurrence: "january"});
+    var el = $("#january");
+    var view = new Planner.Tasks.TasksView({tasks: january, el: el, panelTitle: "Månedlige oppgaver januar"});
+
     
     var el = $("#createtask");
     var view = new Planner.Tasks.CreateTaskView({el: el});
@@ -30,8 +39,10 @@
     priorityTasks.fetch();
     backlog.fetch();
     weekly.fetch();
-    biweekly.fetch();
+    biweeklyodd.fetch();
+    biweeklyeven.fetch();
     monthly.fetch();
+    january.fetch();
 
 
   }
