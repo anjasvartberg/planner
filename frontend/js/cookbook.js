@@ -137,7 +137,7 @@
       '{{#ingredients}}<li>{{amount}}{{unit}} {{name}}</li>{{/ingredients}}</ul></div>' +
       '<div class="recipe-description">Beskrivelse: {{description}}</div></div>' +
       '</div>',
-     initialize: function(options) {
+    initialize: function(options) {
       this.el = options.el;
       this.recipe = options.recipe;
       this.recipes = options.recipes;
@@ -184,9 +184,13 @@
            "/createRecipe",
            JSON.stringify(formData),
            function(data) {
+              console.log("ja");
               that.editMode = false;
               that.render();
-              console.log("ja");
+              var form = that.el.find("form")[0];
+              if (form) form.reset();
+              if (that.recipes != undefined) that.recipes.fetch();
+              if (that.recipe != undefined) that.recipe.fetch();
             }
         ); 
       });
@@ -284,8 +288,8 @@
       '</div>',
     initialize: function(options) {
       this.el = options.el;
-      this.recipes = options.recipes;
       this.recipe = options.recipe;
+      this.recipes = options.recipes;
       this.editMode = options.editMode;
       if (this.recipe != undefined) this.recipe.on("fetch:finished", this.render, this);
       this.render();
@@ -329,10 +333,13 @@
            "/createRecipe",
            JSON.stringify(formData),
            function(data) {
-              that.render();
               console.log("ja");
-              that.el.find("form")[0].reset();
-              that.recipes.fetch();
+              that.editMode = false;
+              that.render();
+              var form = that.el.find("form")[0];
+              if (form) form.reset();
+              if (that.recipes != undefined) that.recipes.fetch();
+              if (that.recipe != undefined) that.recipe.fetch();
             }
         ); 
       });
@@ -340,6 +347,7 @@
         that.el.find(".ingredients-list").append(that.templateIngredients);
       });
       that.el.on("click", "button.edit", function(event) {
+        that.editMode = true;
         that.render();
       });
     }
