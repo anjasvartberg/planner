@@ -4,15 +4,15 @@
   window.Planner = window.Planner || {};
 
   Planner.startCookbook = function() {
-    var recipesDb = new Planner.RecipesDb();
+    var recipes = new Planner.AllRecipes();
 
     var el = $("#createNewRecipe");
-    var view = new Planner.Recipe.CreateRecipeView({el: el, recipesDb: recipesDb});
+    var view = new Planner.Recipe.CreateRecipeView({el: el, recipes: recipes});
     
     var el = $("#recipes");
-    var view = new Planner.Recipe.RecipesViewDb({recipes: recipesDb, el: el});   
+    var view = new Planner.Recipe.RecipesViewDb({el: el, recipes: recipes});   
 
-    recipesDb.fetch(); 
+    recipes.fetch(); 
   }
 
   Planner.Recipe = Simple.Model.extend({
@@ -22,7 +22,7 @@
     }
   });
 
-  Planner.RecipesDb = Simple.Model.extend({
+  Planner.AllRecipes = Simple.Model.extend({
     dataType: "json",
     initialize: function() {
         this.url = "/allRecipesDb"; 
@@ -193,7 +193,7 @@
 
   Planner.Recipe.CreateRecipeView = Simple.View.extend({
     template:'<div class="panel panel-default">' +
-          '<div class="panel-heading" style="position:relative"><h4 class="panel-title">Lag ny oppskrift</h4></div>' +
+          '<div class="panel-heading" style="position:relative"><h4 class="panel-title">{{name}}</h4></div>' +
           '<div class="panel-body">' +
             '<form role="form">' +
             '<div class="form-group">' +
@@ -275,11 +275,11 @@
       '</div>',
     initialize: function(options) {
       this.el = options.el;
-      this.recipesDb = options.recipesDb;
+      this.recipes = options.recipes;
       this.render();
     },
     render: function() {
-      var recipeAttrs = {};
+      var recipeAttrs = {name: "Lag ny oppskrift"};
       var html = Mustache.to_html(this.template, recipeAttrs);
       this.el.html(html);
       this.setupListeners();
@@ -316,7 +316,7 @@
               that.render();
               console.log("ja");
               that.el.find("form")[0].reset();
-              that.recipesDb.fetch();
+              that.recipes.fetch();
             }
         ); 
       });
