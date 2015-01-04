@@ -7,7 +7,7 @@
     var recipes = new Planner.AllRecipes();
 
     var el = $("#createNewRecipe");
-    var view = new Planner.Recipe.CreateRecipeView({el: el, recipes: recipes});
+    var view = new Planner.Recipe.CreateRecipeView({el: el, recipes: recipes, editMode: true});
     
     var el = $("#recipes");
     var view = new Planner.Recipe.RecipesViewDb({el: el, recipes: recipes});   
@@ -57,7 +57,7 @@
 
   Planner.Recipe.RecipeView = Simple.View.extend({
     template:'<div class="panel panel-default">' +
-          '<div class="panel-heading" style="position:relative"><h4 class="panel-title">{{name}}</h4></div>' + 
+          '<div class="panel-heading" style="position:relative"><h4 class="panel-title">{{name}}</h4></div>' +
           '<div class="panel-body">' +
             '<form role="form">' +
             '<div class="form-group">' +
@@ -138,19 +138,26 @@
       '<div class="recipe-description">Beskrivelse: {{description}}</div></div>' +
       '</div>',
      initialize: function(options) {
-      this.recipe = options.recipe;
-      this.recipe.on("fetch:finished", this.render, this);
       this.el = options.el;
+      this.recipe = options.recipe;
+      this.recipes = options.recipes;
+      this.editMode = options.editMode;
+      if (this.recipe != undefined) this.recipe.on("fetch:finished", this.render, this);
+      this.render();
     },
     render: function() {
-      var recipeAttrs = this.recipe.attrs();
-      var html = Mustache.to_html(this.templateShow, recipeAttrs);
-      this.el.html(html);
-      this.setupListeners();
-    },
-    renderEdit: function() {
-      var recipeAttrs = this.recipe.attrs();
-      var html = Mustache.to_html(this.template, recipeAttrs);
+      if (this.recipe != undefined) {
+        var recipeAttrs = this.recipe.attrs();
+      } else {
+        var recipeAttrs = {name: "Lag ny oppskrift"}
+      }
+      
+      if (this.editMode) {
+        var html = Mustache.to_html(this.template, recipeAttrs);
+      } else {
+        var html = Mustache.to_html(this.templateShow, recipeAttrs);
+      }
+      
       this.el.html(html);
       this.setupListeners();
     },
@@ -177,6 +184,7 @@
            "/createRecipe",
            JSON.stringify(formData),
            function(data) {
+              that.editMode = false;
               that.render();
               console.log("ja");
             }
@@ -186,7 +194,8 @@
         that.el.find(".ingredients-list").append(that.templateIngredients);
       });
       that.el.on("click", "button.edit", function(event) {
-        that.renderEdit();
+        that.editMode = true;
+        that.render();
       });
     }
   });
@@ -276,17 +285,24 @@
     initialize: function(options) {
       this.el = options.el;
       this.recipes = options.recipes;
+      this.recipe = options.recipe;
+      this.editMode = options.editMode;
+      if (this.recipe != undefined) this.recipe.on("fetch:finished", this.render, this);
       this.render();
     },
     render: function() {
-      var recipeAttrs = {name: "Lag ny oppskrift"};
-      var html = Mustache.to_html(this.template, recipeAttrs);
-      this.el.html(html);
-      this.setupListeners();
-    },
-    renderEdit: function() {
-      var recipeAttrs = this.recipe.attrs();
-      var html = Mustache.to_html(this.template, recipeAttrs);
+      if (this.recipe != undefined) {
+        var recipeAttrs = this.recipe.attrs();
+      } else {
+        var recipeAttrs = {name: "Lag ny oppskrift"}
+      }
+      
+      if (this.editMode) {
+        var html = Mustache.to_html(this.template, recipeAttrs);
+      } else {
+        var html = Mustache.to_html(this.templateShow, recipeAttrs);
+      }
+      
       this.el.html(html);
       this.setupListeners();
     },
@@ -324,7 +340,7 @@
         that.el.find(".ingredients-list").append(that.templateIngredients);
       });
       that.el.on("click", "button.edit", function(event) {
-        that.renderEdit();
+        that.render();
       });
     }
   });

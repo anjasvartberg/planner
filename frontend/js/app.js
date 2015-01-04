@@ -14,7 +14,7 @@
     
     var todaysRecipe = new Planner.Recipe();
     var el = $("#recipe");
-    var view = new Planner.Recipe.RecipeView({recipe: todaysRecipe, el: el});
+    var view = new Planner.Recipe.RecipeView({recipe: todaysRecipe, el: el, editMode: false});
     
     var plannedTasks = new Planner.Tasks({priority: 1});
     var el = $("#tasks");
