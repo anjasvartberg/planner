@@ -32,6 +32,49 @@
     var el = $("#january");
     var view = new Planner.Tasks.TasksView({tasks: january, el: el, panelTitle: "Månedlige oppgaver januar"});
 
+    var febuary = new Planner.Tasks({recurrence: "febuary"});
+    var el = $("#febuary");
+    var view = new Planner.Tasks.TasksView({tasks: febuary, el: el, panelTitle: "Månedlige oppgaver februar"});
+
+    var march = new Planner.Tasks({recurrence: "march"});
+    var el = $("#march");
+    var view = new Planner.Tasks.TasksView({tasks: march, el: el, panelTitle: "Månedlige oppgaver mars"});
+
+    var april = new Planner.Tasks({recurrence: "april"});
+    var el = $("#april");
+    var view = new Planner.Tasks.TasksView({tasks: april, el: el, panelTitle: "Månedlige oppgaver april"});
+
+    var may = new Planner.Tasks({recurrence: "may"});
+    var el = $("#may");
+    var view = new Planner.Tasks.TasksView({tasks: may, el: el, panelTitle: "Månedlige oppgaver mai"});
+
+    var june = new Planner.Tasks({recurrence: "june"});
+    var el = $("#june");
+    var view = new Planner.Tasks.TasksView({tasks: june, el: el, panelTitle: "Månedlige oppgaver juni"});
+
+    var july = new Planner.Tasks({recurrence: "july"});
+    var el = $("#july");
+    var view = new Planner.Tasks.TasksView({tasks: july, el: el, panelTitle: "Månedlige oppgaver juli"});
+
+    var august = new Planner.Tasks({recurrence: "august"});
+    var el = $("#august");
+    var view = new Planner.Tasks.TasksView({tasks: august, el: el, panelTitle: "Månedlige oppgaver august"});
+
+    var september = new Planner.Tasks({recurrence: "september"});
+    var el = $("#september");
+    var view = new Planner.Tasks.TasksView({tasks: september, el: el, panelTitle: "Månedlige oppgaver september"});
+
+    var october = new Planner.Tasks({recurrence: "october"});
+    var el = $("#october");
+    var view = new Planner.Tasks.TasksView({tasks: october, el: el, panelTitle: "Månedlige oppgaver oktober"});
+
+    var november = new Planner.Tasks({recurrence: "november"});
+    var el = $("#november");
+    var view = new Planner.Tasks.TasksView({tasks: november, el: el, panelTitle: "Månedlige oppgaver november"});
+
+    var december = new Planner.Tasks({recurrence: "december"});
+    var el = $("#december");
+    var view = new Planner.Tasks.TasksView({tasks: december, el: el, panelTitle: "Månedlige oppgaver desember"});
     
     var el = $("#createtask");
     var view = new Planner.Tasks.CreateTaskView({el: el});
@@ -43,7 +86,17 @@
     biweeklyeven.fetch();
     monthly.fetch();
     january.fetch();
-
+    febuary.fetch();
+    march.fetch();
+    april.fetch();
+    may.fetch();
+    june.fetch();
+    july.fetch();
+    august.fetch();
+    september.fetch();
+    october.fetch();
+    november.fetch();
+    december.fetch();
 
   }
 
