@@ -4,12 +4,14 @@
   window.Planner = window.Planner || {};
 
   Planner.startCookbook = function() {
-    var el = $("#createNewRecipe");
-    var view = new Planner.Recipe.CreateRecipeView({el: el});    
-  
     var recipesDb = new Planner.RecipesDb();
+
+    var el = $("#createNewRecipe");
+    var view = new Planner.Recipe.CreateRecipeView({el: el, recipesDb: recipesDb});
+    
     var el = $("#recipes");
     var view = new Planner.Recipe.RecipesViewDb({recipes: recipesDb, el: el});   
+
     recipesDb.fetch(); 
   }
 
@@ -53,12 +55,9 @@
     }
   }); 
 
-
-
   Planner.Recipe.RecipeView = Simple.View.extend({
-    templateEdit:'<div class="panel panel-default">' +
-          '<div class="panel-heading" style="position:relative"><h4 class="panel-title">{{name}}</h4>' +
-          '</div>' + 
+    template:'<div class="panel panel-default">' +
+          '<div class="panel-heading" style="position:relative"><h4 class="panel-title">{{name}}</h4></div>' + 
           '<div class="panel-body">' +
             '<form role="form">' +
             '<div class="form-group">' +
@@ -81,7 +80,7 @@
             '</div>' +
             '<div class="form-group">' +
               '<label for="description">Antall posjoner</label>' +
-              '<input type="number" class="form-control" id="servings" name="servings" value="servings">' +
+              '<input type="number" class="form-control" id="servings" name="servings" value="{{servings}}">' +
             '</div>' +
             '<div class="form-group">' +
               '<label for="ingredients">Ingredienser</label>' +
@@ -151,7 +150,7 @@
     },
     renderEdit: function() {
       var recipeAttrs = this.recipe.attrs();
-      var html = Mustache.to_html(this.templateEdit, recipeAttrs);
+      var html = Mustache.to_html(this.template, recipeAttrs);
       this.el.html(html);
       this.setupListeners();
     },
@@ -179,7 +178,7 @@
            JSON.stringify(formData),
            function(data) {
               that.render();
-              console.log("ja");       
+              console.log("ja");
             }
         ); 
       });
@@ -190,20 +189,21 @@
         that.renderEdit();
       });
     }
-  }); 
+  });
 
   Planner.Recipe.CreateRecipeView = Simple.View.extend({
     template:'<div class="panel panel-default">' +
-          '<div class="panel-heading">Lag ny oppskrift</div>' +
+          '<div class="panel-heading" style="position:relative"><h4 class="panel-title">Lag ny oppskrift</h4></div>' +
           '<div class="panel-body">' +
             '<form role="form">' +
             '<div class="form-group">' +
               '<label for="name">Oppskriftens navn</label>' +
-              '<input type="text" class="form-control" id="name" name="name">' +
+              '<input type="text" class="form-control" id="name" name="name" value="{{name}}">' +
             '</div>' +
             '<div class="form-group">' +
               '<label for="category">Kategori</label>' +
               '<select class="form-control" id="category" name="category">' +
+              '<option>{{category}}</option>' +
               '<option>Fisk</option>' +
               '<option>Rødt kjøtt</option>' +
               '<option>Hvitt kjøtt</option>' +
@@ -212,21 +212,37 @@
             '</div>' +
             '<div class="form-group">' +
               '<label for="description">Merkelapper</label>' +
-              '<input type="text" class="form-control" id="tags" name="tags" data-role="tagsinput">' +
+              '<input type="text" class="form-control" id="tags" name="tags" data-role="tagsinput" value="{{tags}}">' +
             '</div>' +
             '<div class="form-group">' +
               '<label for="description">Antall posjoner</label>' +
-              '<input type="number" class="form-control" id="servings" name="servings">' +
+              '<input type="number" class="form-control" id="servings" name="servings" value="{{servings}}">' +
             '</div>' +
             '<div class="form-group">' +
               '<label for="ingredients">Ingredienser</label>' +
                   '<div class="ingredients-list"></div>'+
                  '<div class="form-group">'+
+                    '{{#ingredients}}' +
+                     '<div class="form-inline ingredients">' +
+                      '<div class="form-group"><input type="number" step="any" min="0" class="form-control amount" name="ingredients-amount" value="{{amount}}"></div>' +
+                      '<div class="form-group">' +
+                        '<select class="form-control unit" name="ingredients-unit">' +
+                          '<option>{{unit}}</option>' +
+                          '<option>g</option>' +
+                          '<option>dl</option>' +
+                          '<option>ss</option>' +
+                          '<option>ts</option>' +
+                          '<option>stk</option>' +
+                        '</select>' +
+                      '</div>' +
+                      '<div class="form-group"><input type="text" class="form-control name" name="ingredients-name" value="{{name}}"></div>' +
+                    '</div>' +
+                  '</div>{{/ingredients}}' + 
                   '<input id="add-row" type="button" value="Legg til ingrediens" class="btn btn-default"/>' +
                 '</div>' +
             '<div class="form-group">' +
               '<label for="description">Fremgangsmåte</label>' +
-              '<textarea rows="8" class="form-control" id="description" name="description"></textarea>' +
+              '<textarea rows="8" class="form-control" id="description" name="description">{{description}}</textarea>' +
             '</div>' +
             '<button type="submit" class="btn btn-default">Send inn</button>' +
           '</form>' +
@@ -246,13 +262,35 @@
           '<div class="form-group"><input type="text" class="form-control name" name="ingredients-name" placeholder="ingrediens"></div>' +
         '</div>' +
       '</div>',
+    templateShow: '<div class="panel panel-default">' +
+        '<div class="panel-heading" style="position:relative"><h4 class="panel-title">{{name}}</h4>' +
+          '<button type="button" class="btn btn-xs btn-primary edit" style="position:absolute;right:10px;top:10px">Endre</button>' +
+        '<button type="button" class="btn btn-xs btn-danger save" style="position:absolute;right:10px;top:10px;display:none">Lagre</button></div>' + 
+      '<div class="panel-body">' +
+      '<div><span class="label label-success">{{category}}</span><span class="label label-info">Porsjoner: {{servings}}</span></div>' +
+      '<div>Ingredienser:' +
+      '<ul>' +
+      '{{#ingredients}}<li>{{amount}}{{unit}} {{name}}</li>{{/ingredients}}</ul></div>' +
+      '<div class="recipe-description">Beskrivelse: {{description}}</div></div>' +
+      '</div>',
     initialize: function(options) {
       this.el = options.el;
-      var html = this.template;
+      this.recipesDb = options.recipesDb;
+      this.render();
+    },
+    render: function() {
+      var recipeAttrs = {};
+      var html = Mustache.to_html(this.template, recipeAttrs);
       this.el.html(html);
       this.setupListeners();
     },
-     setupListeners: function(){
+    renderEdit: function() {
+      var recipeAttrs = this.recipe.attrs();
+      var html = Mustache.to_html(this.template, recipeAttrs);
+      this.el.html(html);
+      this.setupListeners();
+    },
+    setupListeners: function(){
       var that = this;
       that.el.find("form").on("submit", function(event) {
         event.preventDefault();
@@ -275,12 +313,18 @@
            "/createRecipe",
            JSON.stringify(formData),
            function(data) {
-              console.log("ja");       
+              that.render();
+              console.log("ja");
+              that.el.find("form")[0].reset();
+              that.recipesDb.fetch();
             }
         ); 
       });
       that.el.on("click", "input#add-row", function(event) {
         that.el.find(".ingredients-list").append(that.templateIngredients);
+      });
+      that.el.on("click", "button.edit", function(event) {
+        that.renderEdit();
       });
     }
   });
