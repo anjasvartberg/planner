@@ -13,6 +13,12 @@ Planner.Cookbook.writeRecipe = function(data, callback) {
 	Planner.Data.saveData("recipes", recipe, callback);
 }
 
+Planner.Cookbook.deleteRecipe = function(data, callback) {
+	var recipe = data;
+	recipe._id = data.name;
+	Planner.Data.deleteData("recipes", recipe, callback);
+}
+
 Planner.Cookbook.readAllRecipes = function(callback) {
 	Planner.Data.loadData("recipes", 0, callback);
 }
@@ -51,4 +57,5 @@ Planner.Cookbook.getRecipesDb = function (callback) {
 
 exports.getTodaysRecipe = Planner.Cookbook.getTodaysRecipe;
 exports.updateRecipe = Planner.Cookbook.updateRecipe;
+exports.deleteRecipe = Planner.Cookbook.deleteRecipe;
 exports.getRecipesDb = Planner.Cookbook.getRecipesDb;

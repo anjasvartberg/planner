@@ -99,6 +99,14 @@ var server = http.createServer(function (request, response) {
         request.on('end', function () {
             Planner.Cookbook.updateRecipe(JSON.parse(chunk), Planner.writeJson(response));
         });
+    } else if (parsedUrl.pathname == "/deleteRecipe") {
+        var chunk = '';
+        request.on('data', function (data) {
+            chunk += data;
+        });
+        request.on('end', function () {
+            Planner.Cookbook.deleteRecipe(JSON.parse(chunk), Planner.writeJson(response));
+        });
     } else if (parsedUrl.pathname == "/allRecipesDb") {
         Planner.Cookbook.getRecipesDb(Planner.writeJson(response));
     } else {

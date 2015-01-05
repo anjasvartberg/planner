@@ -102,7 +102,7 @@
     templateShow: '<div class="panel panel-default">' +
         '<div class="panel-heading" style="position:relative"><h4 class="panel-title">{{name}}</h4>' +
           '<button type="button" class="btn btn-xs btn-primary edit" style="position:absolute;right:10px;top:10px">Endre</button>' +
-        '<button type="button" class="btn btn-xs btn-danger save" style="position:absolute;right:10px;top:10px;display:none">Lagre</button></div>' + 
+          '<button type="button" class="btn btn-xs btn-danger delete" style="position:absolute;right:60px;top:10px;padding:0px 2px;font-size:75%;">Slett</button></div>' + 
       '<div class="panel-body">' +
       '<div><span class="label label-success">{{category}}</span><span class="label label-info">Porsjoner: {{servings}}</span></div>' +
       '<div>Ingredienser:' +
@@ -180,6 +180,21 @@
       that.el.on("mouseup", "button.edit", function(event) {
         that.editMode = true;
         that.render();
+      });
+      that.el.off("mouseup", "button.delete");
+      that.el.on("mouseup", "button.delete", function(event) {
+        var result = confirm("Vil du virkelig slette " + that.recipe.name + "?");
+        if (result == true) {
+            var formData = {};
+            formData.name = that.recipe.name;
+            $.post( 
+               "/deleteRecipe",
+               JSON.stringify(formData),
+               function(data) {
+                  if (that.recipes != undefined) that.recipes.fetch();
+                }
+            );
+        }
       });
     }
   });

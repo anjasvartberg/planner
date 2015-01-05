@@ -83,6 +83,18 @@ Planner.Data.saveData = function(type, data, callback) {
 		callback({result: "success"});
 	});
 }
+	
+Planner.Data.deleteData = function(type, data, callback) {
+	db[type].remove({_id: data._id}, function(err, removedData) {
+		if (err) throw err;
+		
+		if (removedData.length == 0) {
+			callback({result: "no data removed"});
+		} else {
+            callback({result: "success"});
+		}
+	});
+}
 
 Planner.Data.loadData = function(type, query, callback) {
 	if (callback == undefined) {
@@ -124,4 +136,5 @@ exports.updateSpreadsheet = Planner.Data.updateSpreadsheet;
 exports.getWorksheetName = Planner.Data.getWorksheetName;
 */
 exports.saveData = Planner.Data.saveData;
+exports.deleteData = Planner.Data.deleteData;
 exports.loadData = Planner.Data.loadData;
