@@ -55,11 +55,16 @@ Planner.Data.getWorksheetName = function(month) {
 try {
 	var databaseUrl = process.env.MONGOLAB_URI || "localhost:27017/planner";
 	var collections = ["ingredients", "recipes", "calendar", "tasks"]
-	var db = require("mongojs").connect(databaseUrl, collections);
+	if (db == undefined) var db = require("mongojs").connect(databaseUrl, collections);
 } catch (err) {
 	console.log("FAILED TO CONNECT TO DATABASE: " + err);
 }
 
+// If the Node process ends, close the mongojs connection
+process.on('SIGINT', function() {
+	console.log('mongojs connection disconnected through app termination');
+	db.close();
+});
 
 Planner.Data.saveUpdateCallback = function(err, saved) {
 	if (err) throw err;
